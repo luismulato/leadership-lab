@@ -27,6 +27,8 @@
 
 ## WIP
 
+## Verify
+
 ### LL-15 · Publicar el repositorio en GitHub (público)
 
 - type: story
@@ -42,13 +44,11 @@
     DoD:
     - [x] Revisión de secretos y de material temporal sobre lo versionado
     - [x] Repositorio público creado y URL reflejada en README y mng/README.md
-    - [ ] Commit inicial y push a main
-    - [ ] Verificado el repo público (archivos, mng/, sin .env) y un clon limpio
-    - [ ] Tarjeta en Verify con lo que quedó público (material de terceros)
-    Estado: 2026-11-25 en curso: revisión de secretos limpia (sin claves, tokens, ids de Cloudflare, emails ni rutas locales); repo público creado https://github.com/luismulato/leadership-lab; URL en README y docs. Falta commit inicial, push y verificación del repo público.
+    - [x] Commit inicial y push a main
+    - [x] Verificado el repo público (archivos, mng/, sin .env) y un clon limpio
+    - [x] Tarjeta en Verify con lo que quedó público (material de terceros)
+    Estado: 2026-11-25 hecho. Repo público: https://github.com/luismulato/leadership-lab (rama main, commit inicial 60a908b, 144 archivos, incluye mng/). Revisión de secretos: sin claves, tokens, ids de Cloudflare, emails ni rutas locales. No se publicó: .env, .local/, build/, dist/ (incluye el zip del tema), node_modules/, resultados de prueba. Clon limpio desde GitHub: make up ENV=test levantó y las 5 apps responden 200. QUEDÓ PÚBLICO con derechos de terceros (declarado en NOTICE.md): ilustraciones de OpenSpace (Jorge Roldán y Organico), 5 audios del taller, el PDF del Canvas de Equipos que Enamoran y canvas.png. El tema con logos de Tewa/Bayer/San Andrés NO está en el repo. Si hay que retirar algo, hay que borrarlo del historial (git filter-repo), no alcanza con un commit nuevo. Pendiente de Luis: confirmar la licencia MIT y el material de terceros; revisar la skills de .claude/ que también quedaron públicas.
     ```
-
-## Verify
 
 ### LL-14 · Feedback: enlace de respaldo si el formulario embebido no carga
 
