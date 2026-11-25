@@ -15,7 +15,7 @@ Todos los cambios relevantes se documentan acá. Formato basado en [Keep a Chang
 
 ### Cambiado
 - El catálogo del shell lista las 5 apps disponibles y las 14 "Próximamente" (grises, sin link), igual que en `ch-leadership-lab`.
-- El botón de feedback es propio del shell y abre un panel con un formulario de Tally embebido (`feedback_form_url` por ambiente). Reemplaza al widget del servicio `feedback-lab`; sin esa URL, el botón no aparece. Si el formulario no carga (sin conexión, bloqueado o más de 10 s), el panel ofrece abrirlo en una ventana nueva.
+- El botón de feedback es propio del shell y abre un panel con un formulario de Tally embebido (`feedback_form_url` por ambiente). Reemplaza al widget del servicio `feedback-lab`; sin esa URL, el botón no aparece. Si el formulario no carga (sin conexión, bloqueado o más de 10 s), el panel ofrece abrirlo en una ventana nueva o contactar a Luis Mulato por LinkedIn.
 
 ### Apps incluidas
 Team Canvas, Retro de Equipo, Delegation Poker, Listado de Emociones y OpenSpace / Mercado de temas.

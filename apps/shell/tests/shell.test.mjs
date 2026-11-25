@@ -81,3 +81,14 @@ test("feedback: enlace de respaldo a ventana nueva si el embebido no carga (scri
   assert.match(js, /fb-failed/);
   assert.match(fs.readFileSync(new URL("skin/base.css", R), "utf8"), /\.fb-failed/);
 });
+
+test("feedback: la opción de respaldo agrega 'O contacta a Luis Mulato' con su LinkedIn, solo cuando falla el embebido", () => {
+  const js = fs.readFileSync(new URL("skin/feedback.js", R), "utf8");
+  assert.match(js, /O contacta a/);
+  assert.match(js, /https:\/\/www\.linkedin\.com\/in\/luismulato\//);      // con la barra final, como pidió Luis
+  assert.match(js, /fallback\.appendChild\(fbContact\)/);
+  // el contacto se agrega dentro de fail(), no al armar el panel
+  const failBody = js.slice(js.indexOf("function fail()"), js.indexOf("// Same embed as the code"));
+  assert.match(failBody, /fbContact/);
+  assert.ok(!/fbContact/.test(js.slice(0, js.indexOf("function fail()")).replace(/var fbContact[^\n]*\n(?:[^\n]*fbContact[^\n]*\n)*/g, "")), "fbContact no debe montarse fuera de fail()");
+});

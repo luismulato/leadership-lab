@@ -68,7 +68,7 @@ El botón lateral **Feedback** del shell abre un panel con un formulario de [Tal
 
 - **Cambiar el formulario:** editar `feedback_form_url` del ambiente en `config/environments.json` (la URL de embed de Tally) y volver a desplegar. Con el valor vacío, el botón no aparece.
 - **Ver las respuestas:** en tu cuenta de Tally (no en el admin del sitio).
-- **Si el formulario no carga** (sin internet, bloqueado por una extensión o por la red, o más de 10 segundos sin cargar), el panel muestra como opción principal el enlace "Abrir el formulario en una ventana nueva", con la misma URL. Cuando carga bien, ese enlace queda igual, discreto, debajo del título del panel.
+- **Si el formulario no carga** (sin internet, bloqueado por una extensión o por la red, o más de 10 segundos sin cargar), el panel muestra como opción principal el enlace "Abrir el formulario en una ventana nueva", con la misma URL, y debajo "O contacta a Luis Mulato" con link a su LinkedIn. Cuando carga bien, ese enlace queda igual, discreto, debajo del título del panel.
 - **Privacidad:** Tally es un servicio de terceros. Su código solo se carga cuando alguien abre el panel por primera vez.
 
 ---

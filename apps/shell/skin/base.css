@@ -76,3 +76,4 @@ html.fb-open { overflow: hidden; }
 .fb-fallback a { color: var(--accent, #2563eb); font-weight: 700; text-decoration: none; border-bottom: 2px solid currentColor; }
 .fb-fallback.fb-main { margin: 18px; padding: 18px; border: 1px solid var(--accent, #2563eb); border-radius: 12px; font-size: 1.05rem; color: var(--fg, #1d2130); background: color-mix(in srgb, var(--accent, #2563eb) 8%, transparent); }
 .fb-failed .fb-body { display: none; }
+.fb-fallback .fb-contact { display: block; margin-top: 10px; font-size: .95rem; }

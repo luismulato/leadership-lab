@@ -29,6 +29,25 @@
 
 ## Verify
 
+### LL-16 · Feedback: "O contacta a Luis Mulato" en la opción de respaldo
+
+- type: story
+- tags: [leadership-lab, shell, feedback, aidev]
+    ```md
+    Pedido (Luis, 2026-11-25): en la opción "No pudimos mostrar el formulario acá. Abrir el formulario en una ventana nueva ↗" agregar "O contacta a Luis Mulato" con link a su LinkedIn https://www.linkedin.com/in/luismulato/
+    Historia: como persona que no pudo ver el formulario quiero tener otra vía de contacto directa, para poder dar mi opinión igual.
+    Criterios:
+    - Dado que el formulario no cargó (opción de respaldo en primer plano), entonces junto al enlace de la ventana nueva aparece "O contacta a Luis Mulato", donde "Luis Mulato" lleva a https://www.linkedin.com/in/luismulato/ en pestaña nueva (rel noopener).
+    - Dado que el formulario carga bien, entonces ese texto no aparece (solo está en la opción de respaldo).
+    DoD:
+    - [x] Pruebas escritas primero y vistas en rojo
+    - [x] Implementación en feedback.js y base.css
+    - [x] Probado en el navegador (opción de respaldo)
+    - [x] Docs corregidos
+    - [x] Tarjeta en Verify
+    Estado: 2026-11-25 hecho. En la opción de respaldo ('No pudimos mostrar el formulario acá. Abrir el formulario en una ventana nueva ↗') se agrega abajo 'O contacta a Luis Mulato' con link a https://www.linkedin.com/in/luismulato/ (pestaña nueva, rel noopener). Solo aparece cuando falla el embebido. Pruebas: 1 estática nueva (9 en shell) y la de pantalla del respaldo ampliada (6 en verde). Probado en navegador con navigator.onLine=false. SIN SUBIR a GitHub: el repo público no tiene este cambio todavía.
+    ```
+
 ### LL-15 · Publicar el repositorio en GitHub (público)
 
 - type: story

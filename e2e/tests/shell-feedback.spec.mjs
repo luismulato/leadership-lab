@@ -68,6 +68,12 @@ test.describe("@shell feedback", () => {
     await expect(link).toHaveAttribute("target", "_blank");
     await expect(link).toHaveAttribute("rel", /noopener/);
     await expect(dialog.locator(".fb-fallback")).toHaveClass(/fb-main/);          // prominent, not the discreet footer
+    const contact = dialog.getByRole("link", { name: "Luis Mulato" });             // "O contacta a Luis Mulato"
+    await expect(contact).toBeVisible();
+    await expect(contact).toHaveAttribute("href", "https://www.linkedin.com/in/luismulato/");
+    await expect(contact).toHaveAttribute("target", "_blank");
+    await expect(contact).toHaveAttribute("rel", /noopener/);
+    await expect(dialog.locator(".fb-fallback")).toContainText("O contacta a");
     await expect(dialog.locator("iframe[title='Formulario de Feedback']")).toBeHidden();
     // The new window is opened and asks for the form (the request is aborted by this suite, so we assert the request, not the final page).
     const asked = context.waitForEvent("request", { predicate: (r) => r.url().includes("tally.so/embed/bZW1bL") });

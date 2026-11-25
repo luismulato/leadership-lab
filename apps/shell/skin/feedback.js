@@ -28,6 +28,11 @@
   var fbLink = el("a", "fb-link", "Abrilo en una ventana nueva ↗");
   fbLink.href = formUrl; fbLink.target = "_blank"; fbLink.setAttribute("rel", "noopener");
   fallback.appendChild(fbMsg); fallback.appendChild(fbLink);
+  // Another way to reach the author. It is only added to the fallback when the embed fails (see fail()).
+  var fbContact = el("span", "fb-contact", "O contacta a ");
+  var fbContactLink = el("a", "", "Luis Mulato");
+  fbContactLink.href = "https://www.linkedin.com/in/luismulato/"; fbContactLink.target = "_blank"; fbContactLink.setAttribute("rel", "noopener");
+  fbContact.appendChild(fbContactLink);
   panel.appendChild(head); panel.appendChild(fallback); panel.appendChild(body); overlay.appendChild(panel);
 
   var timer = null, frame = null;
@@ -38,6 +43,7 @@
     fbMsg.textContent = "No pudimos mostrar el formulario acá. ";
     fbLink.textContent = "Abrir el formulario en una ventana nueva ↗";
     fallback.classList.add("fb-main");
+    if (!fbContact.parentNode) fallback.appendChild(fbContact);
     if (frame) frame.hidden = true;
   }
 
