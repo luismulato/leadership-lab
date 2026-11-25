@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Pruebas · Leadership Lab</title>
+<meta name="description" content="Documentación técnica de Leadership Lab: stack, arquitectura, ambientes, base de datos, desarrollo, pruebas y despliegue.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="brand" href="index.html">Leadership Lab <span>Documentación</span></a>
+  <button type="button" class="theme-btn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema"></button>
+</header>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Documentación">
+    <div class="search">
+      <input type="search" id="q" placeholder="Buscar en la documentación" aria-label="Buscar en la documentación" autocomplete="off">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+    <ul class="nav"><li><a href="index.html"><span class="nav-label">Inicio</span><span class="nav-hint">Qué es y cómo arrancar</span></a></li><li><a href="stack-tecnologico.html"><span class="nav-label">Stack tecnológico</span><span class="nav-hint">Qué usa cada capa y cada app</span></a></li><li><a href="arquitectura.html"><span class="nav-label">Arquitectura</span><span class="nav-hint">Cómo encaja todo</span></a></li><li><a href="ambientes.html"><span class="nav-label">Ambientes</span><span class="nav-hint">dev, test y prod</span></a></li><li><a href="base-de-datos.html"><span class="nav-label">Base de datos</span><span class="nav-hint">Una D1, tablas y migraciones</span></a></li><li><a href="desarrollo.html"><span class="nav-label">Desarrollo</span><span class="nav-hint">Requisitos y flujo de trabajo</span></a></li><li><a href="pruebas.html" aria-current="page"><span class="nav-label">Pruebas</span><span class="nav-hint">Niveles y cómo correrlos</span></a></li><li><a href="despliegue.html"><span class="nav-label">Despliegue</span><span class="nav-hint">Publicar en Cloudflare</span></a></li></ul>
+    <p class="side-foot">Generado desde los archivos <code>.md</code>.<br>Para cambiarlo, editá el markdown y corré <code>make docs</code>.</p>
+  </nav>
+  <main id="contenido" class="content">
+    <article class="doc">
+<h1 id="pruebas">Pruebas</h1>
+<p><code>make test</code> corre <strong>todo</strong> contra el ambiente de pruebas (<a href="http://localhost:8190/" target="_blank" rel="noopener">http://localhost:8190/</a>, base vacía) y lo apaga al terminar.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Qué cubre</th>
+<th>Dónde</th>
+<th>Herramienta</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Estructura y ambientes</td>
+<td>Archivos de un repo open source, tres ambientes bien definidos, mismo código en todos, rutas con prefijo</td>
+<td><code>tests/site/</code></td>
+<td><code>node:test</code></td>
+</tr>
+<tr>
+<td>Documentación HTML</td>
+<td>Que cada página exista, esté al día con el markdown, no tenga links rotos y funcione sin internet</td>
+<td><code>tests/site/docs-html.test.mjs</code></td>
+<td><code>node:test</code></td>
+</tr>
+<tr>
+<td>Esquema</td>
+<td>Las migraciones crean las 10 tablas y los ejemplos <code>ACME01</code>; no hay tablas repetidas</td>
+<td><code>db/tests/</code></td>
+<td><code>node:test</code> + <code>sqlite3</code></td>
+</tr>
+<tr>
+<td>Shell</td>
+<td>Temas, admin y catálogo del shell</td>
+<td><code>apps/shell/tests/</code></td>
+<td><code>node:test</code></td>
+</tr>
+<tr>
+<td>API (integración)</td>
+<td>Cada endpoint de cada app contra el servidor real y su base: casos felices, validaciones, topes, ejemplo de solo lectura, modo admin</td>
+<td><code>apps/&lt;app&gt;/tests/</code></td>
+<td><code>node:test</code> + <code>fetch</code></td>
+</tr>
+<tr>
+<td>Pantalla (extremo a extremo)</td>
+<td>Abrir <code>/&lt;app&gt;/#CODIGO</code>, el botón &quot;Abrir&quot; del admin, códigos inexistentes, y el botón y panel de feedback del shell</td>
+<td><code>e2e/tests/</code></td>
+<td>Playwright (Chrome instalado)</td>
+</tr>
+</tbody></table></div>
+<p>No hay pruebas unitarias aisladas de la lógica de cada función: las funciones se prueban a través de su API.</p>
+<h2 id="correr-una-parte">Correr una parte<a class="anchor" href="#correr-una-parte" aria-label="Enlace a esta sección">#</a></h2>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code>make test-unit    # estructura, esquema y shell (sin servidor)
+make test-api     # API de las 5 apps
+make test-e2e     # pantalla (necesita Google Chrome)
+</code></pre></div>
+<p>Para probar a mano en el ambiente de pruebas: <code>make up ENV=test</code> (queda corriendo; <code>make down ENV=test</code> lo baja).</p>
+<h2 id="escribir-pruebas">Escribir pruebas<a class="anchor" href="#escribir-pruebas" aria-label="Enlace a esta sección">#</a></h2>
+<ul>
+<li>Estilo de los casos: <strong>Dado… cuando… entonces…</strong> (los existentes están así). Las pruebas nuevas, en inglés (Given / When / Then).</li>
+<li>Las pruebas de API aceptan <code>BASE</code> (por ejemplo <code>BASE=http://localhost:8190/retro</code>) y <code>ADMIN_CLAVE</code> (la clave del ambiente).</li>
+<li>Las pruebas de pantalla <strong>crean datos</strong>: solo corren contra <code>localhost</code>.</li>
+<li>Los tests de topes (por ejemplo, 429) se omiten fuera de local para no llenar una base real.</li>
+</ul>
+<h2 id="integracion-continua">Integración continua<a class="anchor" href="#integracion-continua" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>.github/workflows/ci.yml</code> instala dependencias y corre <code>make test</code> en cada push a <code>main</code> y en cada pull request.</p>
+
+    </article>
+    <nav class="pager" aria-label="Páginas"><a class="prev" href="desarrollo.html"><small>Anterior</small>Desarrollo</a><a class="next" href="despliegue.html"><small>Siguiente</small>Despliegue</a></nav>
+    <footer class="credit">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></footer>
+  </main>
+  <aside class="toc" aria-label="En esta página"><p>En esta página</p><ul><li class="l2"><a href="#correr-una-parte">Correr una parte</a></li><li class="l2"><a href="#escribir-pruebas">Escribir pruebas</a></li><li class="l2"><a href="#integracion-continua">Integración continua</a></li></ul></aside>
+</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/docs.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: make setup
+      - name: Install sqlite3 (schema tests)
+        run: sudo apt-get update && sudo apt-get install -y sqlite3
+      - name: Test suite (test environment, empty database)
+        run: make test

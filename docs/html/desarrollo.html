@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Desarrollo · Leadership Lab</title>
+<meta name="description" content="Documentación técnica de Leadership Lab: stack, arquitectura, ambientes, base de datos, desarrollo, pruebas y despliegue.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="brand" href="index.html">Leadership Lab <span>Documentación</span></a>
+  <button type="button" class="theme-btn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema"></button>
+</header>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Documentación">
+    <div class="search">
+      <input type="search" id="q" placeholder="Buscar en la documentación" aria-label="Buscar en la documentación" autocomplete="off">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+    <ul class="nav"><li><a href="index.html"><span class="nav-label">Inicio</span><span class="nav-hint">Qué es y cómo arrancar</span></a></li><li><a href="stack-tecnologico.html"><span class="nav-label">Stack tecnológico</span><span class="nav-hint">Qué usa cada capa y cada app</span></a></li><li><a href="arquitectura.html"><span class="nav-label">Arquitectura</span><span class="nav-hint">Cómo encaja todo</span></a></li><li><a href="ambientes.html"><span class="nav-label">Ambientes</span><span class="nav-hint">dev, test y prod</span></a></li><li><a href="base-de-datos.html"><span class="nav-label">Base de datos</span><span class="nav-hint">Una D1, tablas y migraciones</span></a></li><li><a href="desarrollo.html" aria-current="page"><span class="nav-label">Desarrollo</span><span class="nav-hint">Requisitos y flujo de trabajo</span></a></li><li><a href="pruebas.html"><span class="nav-label">Pruebas</span><span class="nav-hint">Niveles y cómo correrlos</span></a></li><li><a href="despliegue.html"><span class="nav-label">Despliegue</span><span class="nav-hint">Publicar en Cloudflare</span></a></li></ul>
+    <p class="side-foot">Generado desde los archivos <code>.md</code>.<br>Para cambiarlo, editá el markdown y corré <code>make docs</code>.</p>
+  </nav>
+  <main id="contenido" class="content">
+    <article class="doc">
+<h1 id="desarrollo">Desarrollo</h1>
+<h2 id="requisitos">Requisitos<a class="anchor" href="#requisitos" aria-label="Enlace a esta sección">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Herramienta</th>
+<th>Versión</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Node.js</td>
+<td>20 o superior (ver <code>.nvmrc</code>)</td>
+<td>Wrangler, pruebas</td>
+</tr>
+<tr>
+<td>Python 3</td>
+<td>3.9 o superior</td>
+<td>Armado (<code>scripts/build.py</code> y los <code>build.py</code> de las apps)</td>
+</tr>
+<tr>
+<td>Make</td>
+<td>cualquiera</td>
+<td>Comandos del proyecto</td>
+</tr>
+<tr>
+<td>Google Chrome</td>
+<td>reciente</td>
+<td>Solo para las pruebas de pantalla (<code>make test-e2e</code>)</td>
+</tr>
+<tr>
+<td><code>sqlite3</code> (CLI)</td>
+<td>cualquiera</td>
+<td>Solo para la prueba del esquema</td>
+</tr>
+</tbody></table></div>
+<h2 id="arranque-en-tres-pasos">Arranque en tres pasos<a class="anchor" href="#arranque-en-tres-pasos" aria-label="Enlace a esta sección">#</a></h2>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code>git clone https://github.com/luismulato/leadership-lab.git &amp;&amp; cd leadership-lab
+make dev          # instala dependencias la primera vez, migra la base local y levanta
+# abrir http://localhost:8090/    (admin: /app-admin/, clave: dev-admin-key)
+</code></pre></div>
+<p>La primera vez, <code>make dev</code> corre <code>make setup</code>: instala las dependencias (<code>npm install</code>) y crea <code>.env</code> desde <code>.env.example</code>.</p>
+<h2 id="comandos">Comandos<a class="anchor" href="#comandos" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>make help</code> los lista. Los principales:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>make dev</code></td>
+<td>Levanta el ambiente de desarrollo (<a href="http://localhost:8090/" target="_blank" rel="noopener">http://localhost:8090/</a>)</td>
+</tr>
+<tr>
+<td><code>make up ENV=test</code></td>
+<td>Levanta el ambiente de pruebas (<a href="http://localhost:8190/" target="_blank" rel="noopener">http://localhost:8190/</a>, base vacía)</td>
+</tr>
+<tr>
+<td><code>make down ENV=dev</code> / <code>make status ENV=dev</code></td>
+<td>Baja / consulta</td>
+</tr>
+<tr>
+<td><code>make logs ENV=dev</code></td>
+<td>Sigue el log del servidor</td>
+</tr>
+<tr>
+<td><code>make reset ENV=dev</code></td>
+<td>Borra los datos locales de ese ambiente</td>
+</tr>
+<tr>
+<td><code>make build ENV=dev</code></td>
+<td>Arma <code>build/dev/</code> sin levantar nada</td>
+</tr>
+<tr>
+<td><code>make test</code></td>
+<td>Toda la suite en el ambiente de pruebas</td>
+</tr>
+<tr>
+<td><code>make docs</code></td>
+<td>Regenera la versión HTML de la documentación (<code>docs/html/</code>)</td>
+</tr>
+<tr>
+<td><code>make clean</code></td>
+<td>Borra <code>build/</code> y <code>.local/</code></td>
+</tr>
+</tbody></table></div>
+<p>Después de editar una app, volvé a correr <code>make dev</code>: reconstruye y reinicia.</p>
+<h2 id="documentacion">Documentación<a class="anchor" href="#documentacion" aria-label="Enlace a esta sección">#</a></h2>
+<p>La documentación se escribe en markdown (<code>README.md</code> y <code>docs/*.md</code>), que es la fuente. La versión web en <code>docs/html/</code> se <strong>genera</strong>: después de editar un <code>.md</code>, corré <code>make docs</code> y commiteá también el HTML. Si te olvidás, <code>make test</code> falla. Se abre con doble clic sobre <code>docs/html/index.html</code>.</p>
+<h2 id="flujo-de-trabajo">Flujo de trabajo<a class="anchor" href="#flujo-de-trabajo" aria-label="Enlace a esta sección">#</a></h2>
+<ol>
+<li>Crear una rama y editar la <strong>fuente</strong> (ver la tabla &quot;Cómo se genera cada página&quot; en <a href="stack-tecnologico.html">stack-tecnologico.md</a>). No se edita ningún <code>public/index.html</code> generado.</li>
+<li><code>make dev</code> y mirar el cambio en el navegador.</li>
+<li>Escribir o ajustar la prueba que lo cubre (primero la prueba, después el código).</li>
+<li><code>make test</code> hasta que dé verde.</li>
+<li>Abrir el pull request (la CI corre <code>make test</code>).</li>
+</ol>
+<h2 id="agregar-una-app-nueva">Agregar una app nueva<a class="anchor" href="#agregar-una-app-nueva" aria-label="Enlace a esta sección">#</a></h2>
+<ol>
+<li>Crear <code>apps/&lt;app&gt;/</code> con <code>public/index.html</code> (y <code>public/admin/index.html</code>), <code>functions/api/[[path]].js</code> y <code>tests/api.test.mjs</code>.</li>
+<li>Prefijar <strong>todas</strong> las rutas con <code>/&lt;app&gt;/</code> (<code>/&lt;app&gt;/api</code>, <code>/&lt;app&gt;/img</code>…).</li>
+<li>Si necesita tablas: nueva migración en <code>db/migrations/</code> con prefijo de la app (ver <a href="base-de-datos.html">base-de-datos.md</a>).</li>
+<li>Agregarla al catálogo del shell en <code>apps/shell/assets/apps.js</code> con <code>estado: &quot;disponible&quot;</code> y <code>url: &quot;/&lt;app&gt;/&quot;</code>.</li>
+<li>Si tiene pantalla de ejemplo, sumar su prueba en <code>e2e/tests/</code> y su nombre en <code>scripts/test.sh</code>.</li>
+<li><code>make test</code>: la prueba de estructura (<code>tests/site</code>) verifica que no queden rutas sin prefijo.</li>
+</ol>
+<h3 id="apps-proximamente">Apps &quot;Próximamente&quot;<a class="anchor" href="#apps-proximamente" aria-label="Enlace a esta sección">#</a></h3>
+<p>El catálogo (<code>apps/shell/assets/apps.js</code>) también lista las apps que todavía no existen, con <code>estado: &quot;pronto&quot;</code> y <code>url: &quot;&quot;</code>. Aparecen grises, en el grupo &quot;Próximamente&quot; del menú y como &quot;Pronto&quot; en el inicio, y no se pueden abrir. Para sumar una idea: agregar su entrada con <code>estado: &quot;pronto&quot;</code> (con su ficha: resumen, qué incluye, color e ícono). Para <strong>promoverla a disponible</strong> cuando esté lista: crear su carpeta en <code>apps/&lt;app&gt;/</code>, cambiar <code>estado</code> a <code>&quot;disponible&quot;</code> y poner <code>url: &quot;/&lt;app&gt;/&quot;</code>.</p>
+<h2 id="convenciones">Convenciones<a class="anchor" href="#convenciones" aria-label="Enlace a esta sección">#</a></h2>
+<ul>
+<li><strong>Código, comentarios, nombres de archivos, scripts y mensajes de commit nuevos: en inglés.</strong> Documentación (<code>docs/</code>, README, etc.) en español. La interfaz que ve la gente está en español.</li>
+<li>El código existente conserva sus nombres actuales (hay identificadores y comentarios en español); se traducen de a poco, sin mezclar con otros cambios.</li>
+<li>Formato según <code>.editorconfig</code>: UTF-8, LF, 2 espacios (4 en Python y Bash).</li>
+</ul>
+
+    </article>
+    <nav class="pager" aria-label="Páginas"><a class="prev" href="base-de-datos.html"><small>Anterior</small>Base de datos</a><a class="next" href="pruebas.html"><small>Siguiente</small>Pruebas</a></nav>
+    <footer class="credit">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></footer>
+  </main>
+  <aside class="toc" aria-label="En esta página"><p>En esta página</p><ul><li class="l2"><a href="#requisitos">Requisitos</a></li><li class="l2"><a href="#arranque-en-tres-pasos">Arranque en tres pasos</a></li><li class="l2"><a href="#comandos">Comandos</a></li><li class="l2"><a href="#documentacion">Documentación</a></li><li class="l2"><a href="#flujo-de-trabajo">Flujo de trabajo</a></li><li class="l2"><a href="#agregar-una-app-nueva">Agregar una app nueva</a></li><li class="l3"><a href="#apps-proximamente">Apps &quot;Próximamente&quot;</a></li><li class="l2"><a href="#convenciones">Convenciones</a></li></ul></aside>
+</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/docs.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Arquitectura · Leadership Lab</title>
+<meta name="description" content="Documentación técnica de Leadership Lab: stack, arquitectura, ambientes, base de datos, desarrollo, pruebas y despliegue.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body data-mermaid="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js">
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="brand" href="index.html">Leadership Lab <span>Documentación</span></a>
+  <button type="button" class="theme-btn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema"></button>
+</header>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Documentación">
+    <div class="search">
+      <input type="search" id="q" placeholder="Buscar en la documentación" aria-label="Buscar en la documentación" autocomplete="off">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+    <ul class="nav"><li><a href="index.html"><span class="nav-label">Inicio</span><span class="nav-hint">Qué es y cómo arrancar</span></a></li><li><a href="stack-tecnologico.html"><span class="nav-label">Stack tecnológico</span><span class="nav-hint">Qué usa cada capa y cada app</span></a></li><li><a href="arquitectura.html" aria-current="page"><span class="nav-label">Arquitectura</span><span class="nav-hint">Cómo encaja todo</span></a></li><li><a href="ambientes.html"><span class="nav-label">Ambientes</span><span class="nav-hint">dev, test y prod</span></a></li><li><a href="base-de-datos.html"><span class="nav-label">Base de datos</span><span class="nav-hint">Una D1, tablas y migraciones</span></a></li><li><a href="desarrollo.html"><span class="nav-label">Desarrollo</span><span class="nav-hint">Requisitos y flujo de trabajo</span></a></li><li><a href="pruebas.html"><span class="nav-label">Pruebas</span><span class="nav-hint">Niveles y cómo correrlos</span></a></li><li><a href="despliegue.html"><span class="nav-label">Despliegue</span><span class="nav-hint">Publicar en Cloudflare</span></a></li></ul>
+    <p class="side-foot">Generado desde los archivos <code>.md</code>.<br>Para cambiarlo, editá el markdown y corré <code>make docs</code>.</p>
+  </nav>
+  <main id="contenido" class="content">
+    <article class="doc">
+<h1 id="arquitectura">Arquitectura</h1>
+<h2 id="un-solo-sitio-una-sola-base">Un solo sitio, una sola base<a class="anchor" href="#un-solo-sitio-una-sola-base" aria-label="Enlace a esta sección">#</a></h2>
+<p>Todo el proyecto se publica como <strong>un único proyecto de Cloudflare Pages</strong> por ambiente. El shell vive en la raíz y cada app bajo su propia ruta. Las cinco apps comparten <strong>una sola base D1</strong>.</p>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><pre><code>https://&lt;sitio&gt;/                      shell (menú lateral, temas, admin del sitio)
+https://&lt;sitio&gt;/app-admin/            admin del shell (tema) y acceso a los admin de las apps
+https://&lt;sitio&gt;/team-canvas/          app          ·  /team-canvas/admin/   admin  ·  /team-canvas/api/…   API
+https://&lt;sitio&gt;/retro/                app          ·  /retro/admin/         admin  ·  /retro/api/…         API
+https://&lt;sitio&gt;/delegation/           app          ·  /delegation/admin/    admin  ·  /delegation/api/…    API
+https://&lt;sitio&gt;/emociones/            app          ·  /emociones/admin/     admin  ·  /emociones/api/…     API
+https://&lt;sitio&gt;/openspace/            app          ·  /openspace/admin/     admin  ·  /openspace/api/…     API
+</code></pre></div>
+<pre class="mermaid">flowchart LR
+  B[Navegador] --&gt;|HTML, CSS, JS| P[Cloudflare Pages&lt;br/&gt;public/]
+  B --&gt;|fetch /app/api/...| F[Pages Functions&lt;br/&gt;functions/&amp;lt;app&amp;gt;/api]
+  F --&gt; D[(D1: una base)]
+  F --&gt;|solo el shell| K[(KV: tema)]
+  S[Shell /] -.-&gt;|iframe| A[/&amp;lt;app&amp;gt;/]
+</pre>
+<h2 id="flujo-de-una-peticion">Flujo de una petición<a class="anchor" href="#flujo-de-una-peticion" aria-label="Enlace a esta sección">#</a></h2>
+<ol>
+<li>El navegador abre <code>/&lt;app&gt;/#CODIGO</code>. La página (HTML estático) se sirve desde <code>public/&lt;app&gt;/</code>.</li>
+<li>La página llama a <code>/&lt;app&gt;/api/...</code>. Cloudflare enruta a <code>functions/&lt;app&gt;/api/[[path]].js</code>.</li>
+<li>La función valida el código y las reglas (topes, ejemplo de solo lectura, tamaños) y lee o escribe en D1 con el binding <code>DB</code>.</li>
+<li>Las rutas <code>/api/admin/...</code> exigen la cabecera <code>x-admin-clave</code>, comparada con el secreto <code>APP_ADMIN_CLAVE</code>.</li>
+</ol>
+<p>Todas las rutas usan el prefijo de su app (<code>/&lt;app&gt;/api</code>, <code>/&lt;app&gt;/img</code>, <code>/&lt;app&gt;/audio</code>): por eso el mismo código corre idéntico en cualquier ambiente y bajo cualquier dominio.</p>
+<h2 id="como-se-arma-scripts-build-py">Cómo se arma (<code>scripts/build.py</code>)<a class="anchor" href="#como-se-arma-scripts-build-py" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>scripts/build.py --env &lt;ambiente&gt;</code> produce <code>build/&lt;ambiente&gt;/</code>:</p>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><pre><code>build/&lt;ambiente&gt;/
+├── public/            shell en &quot;/&quot; + cada app en &quot;/&lt;app&gt;/&quot; + env.js
+├── functions/         funciones del shell + una API por app en &quot;functions/&lt;app&gt;/&quot;
+├── db/migrations/     esquema único de la base
+└── wrangler.toml      generado: UNA D1, UN KV, nombre del proyecto
+</code></pre></div>
+<p>El código de las apps es <strong>idéntico</strong> en todos los ambientes. Solo cambian dos archivos generados:</p>
+<ul>
+<li><code>wrangler.toml</code>: nombre del proyecto, base y KV del ambiente.</li>
+<li><code>public/env.js</code>: <code>window.LL_ENV = { name, feedbackFormUrl }</code>, que usa el shell para saber en qué ambiente está y qué formulario de feedback mostrar.</li>
+</ul>
+<h2 id="estructura-del-repositorio">Estructura del repositorio<a class="anchor" href="#estructura-del-repositorio" aria-label="Enlace a esta sección">#</a></h2>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><pre><code>leadership-lab/
+├── apps/&lt;app&gt;/            fuentes de cada app: public/ · functions/ · build.py y *.src.html (si se genera) · tests/
+├── apps/shell/            raíz del sitio: index.html · assets/ · skin/ · app-admin/ · functions/
+├── packages/canvas-base/  team-canvas.html: fuente compartida del canvas
+├── db/migrations/         migraciones de la única base D1  ·  db/tests/
+├── config/                environments.json: los tres ambientes
+├── scripts/               build, local, test, deploy, cloudflare-bootstrap, config
+├── tests/site/            pruebas de estructura y de ambientes
+├── e2e/                   pruebas de pantalla (Playwright)
+├── docs/                  esta documentación
+├── mng/                   tablero kanban del proyecto
+└── .github/               CI y plantillas
+</code></pre></div>
+<h2 id="decisiones-de-diseno">Decisiones de diseño<a class="anchor" href="#decisiones-de-diseno" aria-label="Enlace a esta sección">#</a></h2>
+<ul>
+<li><strong>Una base para todo:</strong> las tablas no chocan entre apps, así que no hizo falta renombrar nada. Las tablas nuevas llevan prefijo de app.</li>
+<li><strong>Sin framework:</strong> cada app es un archivo HTML autocontenido; no hay empaquetador ni transpilación. Menos piezas, arranque inmediato.</li>
+<li><strong>Rutas con prefijo:</strong> permite alojar todas las apps en un solo dominio y proyecto.</li>
+<li><strong>Feedback con formulario embebido:</strong> el botón lateral &quot;Feedback&quot; es del shell y abre un panel con un formulario de Tally. No depende de ningún servicio propio; si el ambiente deja <code>feedback_form_url</code> vacío, el botón no aparece.</li>
+</ul>
+
+    </article>
+    <nav class="pager" aria-label="Páginas"><a class="prev" href="stack-tecnologico.html"><small>Anterior</small>Stack tecnológico</a><a class="next" href="ambientes.html"><small>Siguiente</small>Ambientes</a></nav>
+    <footer class="credit">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></footer>
+  </main>
+  <aside class="toc" aria-label="En esta página"><p>En esta página</p><ul><li class="l2"><a href="#un-solo-sitio-una-sola-base">Un solo sitio, una sola base</a></li><li class="l2"><a href="#flujo-de-una-peticion">Flujo de una petición</a></li><li class="l2"><a href="#como-se-arma-scripts-build-py">Cómo se arma (scripts/build.py)</a></li><li class="l2"><a href="#estructura-del-repositorio">Estructura del repositorio</a></li><li class="l2"><a href="#decisiones-de-diseno">Decisiones de diseño</a></li></ul></aside>
+</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/docs.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js" defer></script>
+</body>
+</html>

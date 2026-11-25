@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Base de datos · Leadership Lab</title>
+<meta name="description" content="Documentación técnica de Leadership Lab: stack, arquitectura, ambientes, base de datos, desarrollo, pruebas y despliegue.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="brand" href="index.html">Leadership Lab <span>Documentación</span></a>
+  <button type="button" class="theme-btn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema"></button>
+</header>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Documentación">
+    <div class="search">
+      <input type="search" id="q" placeholder="Buscar en la documentación" aria-label="Buscar en la documentación" autocomplete="off">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+    <ul class="nav"><li><a href="index.html"><span class="nav-label">Inicio</span><span class="nav-hint">Qué es y cómo arrancar</span></a></li><li><a href="stack-tecnologico.html"><span class="nav-label">Stack tecnológico</span><span class="nav-hint">Qué usa cada capa y cada app</span></a></li><li><a href="arquitectura.html"><span class="nav-label">Arquitectura</span><span class="nav-hint">Cómo encaja todo</span></a></li><li><a href="ambientes.html"><span class="nav-label">Ambientes</span><span class="nav-hint">dev, test y prod</span></a></li><li><a href="base-de-datos.html" aria-current="page"><span class="nav-label">Base de datos</span><span class="nav-hint">Una D1, tablas y migraciones</span></a></li><li><a href="desarrollo.html"><span class="nav-label">Desarrollo</span><span class="nav-hint">Requisitos y flujo de trabajo</span></a></li><li><a href="pruebas.html"><span class="nav-label">Pruebas</span><span class="nav-hint">Niveles y cómo correrlos</span></a></li><li><a href="despliegue.html"><span class="nav-label">Despliegue</span><span class="nav-hint">Publicar en Cloudflare</span></a></li></ul>
+    <p class="side-foot">Generado desde los archivos <code>.md</code>.<br>Para cambiarlo, editá el markdown y corré <code>make docs</code>.</p>
+  </nav>
+  <main id="contenido" class="content">
+    <article class="doc">
+<h1 id="base-de-datos">Base de datos</h1>
+<p>Las cinco apps comparten <strong>una sola base D1</strong> (SQLite). Cada ambiente tiene la suya: nunca comparten datos.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ambiente</th>
+<th>Base</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dev</code></td>
+<td>local, en <code>.local/dev/state/</code> (nombre <code>leadership-lab-dev</code>)</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>local, en <code>.local/test/state/</code>, se borra en cada arranque (nombre <code>leadership-lab-test</code>)</td>
+</tr>
+<tr>
+<td><code>prod</code></td>
+<td>D1 <code>leadership-lab</code> en Cloudflare</td>
+</tr>
+</tbody></table></div>
+<h2 id="migraciones">Migraciones<a class="anchor" href="#migraciones" aria-label="Enlace a esta sección">#</a></h2>
+<ul>
+<li>Viven en <code>db/migrations/</code>, en <strong>una sola secuencia numerada</strong> (<code>0001_…</code> a <code>0011_…</code>).</li>
+<li>Se aplican solas al levantar un ambiente local (<code>make dev</code>, <code>make test</code>) y en <code>make deploy</code>.</li>
+<li><strong>Nunca se edita una migración ya aplicada.</strong> Un cambio de esquema es un archivo nuevo con el número siguiente.</li>
+<li>Las tablas nuevas llevan prefijo de la app (<code>&lt;app&gt;_&lt;tabla&gt;</code>) para no chocar con otras.</li>
+<li>Convención de nombres de archivo: <code>NNNN_&lt;app&gt;_&lt;qué-hace&gt;.sql</code>.</li>
+</ul>
+<h2 id="tablas">Tablas<a class="anchor" href="#tablas" aria-label="Enlace a esta sección">#</a></h2>
+<p>Los nombres de tablas y columnas se conservan como estaban (algunos están en español); la interfaz y la API los usan tal cual.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>App</th>
+<th>Tabla</th>
+<th>Qué guarda</th>
+<th>Clave</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Team Canvas</td>
+<td><code>canvases</code></td>
+<td>Un canvas por equipo (<code>code</code>, <code>name</code>, <code>created_at</code>, <code>locked</code> = ejemplo de solo lectura)</td>
+<td><code>code</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>notes</code></td>
+<td>Notas por sección (<code>sec</code>, <code>text</code>)</td>
+<td><code>id</code>, FK <code>code</code></td>
+</tr>
+<tr>
+<td>Retro</td>
+<td><code>retros</code></td>
+<td>Una retro por equipo (<code>phase</code> 0–3, <code>demo</code> = ejemplo)</td>
+<td><code>code</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>items</code></td>
+<td>Ideas por fase y mirada (<code>lens</code>: producto, proceso, equipo), con <code>votes</code></td>
+<td><code>id</code>, FK <code>code</code></td>
+</tr>
+<tr>
+<td>Delegation Poker</td>
+<td><code>orgs</code></td>
+<td>Organizaciones (<code>readonly</code> = ejemplo)</td>
+<td><code>code</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>decisions</code></td>
+<td>Decisiones, como JSON en <code>data</code></td>
+<td><code>id</code>, FK <code>code</code></td>
+</tr>
+<tr>
+<td>Emociones</td>
+<td><code>emo_boards</code></td>
+<td>Tableros (<code>example</code> = ejemplo)</td>
+<td><code>code</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>emo_checkins</code></td>
+<td>Check-ins: <code>nick</code>, <code>word</code>, <code>quadrant</code>, <code>note</code>, <code>need</code>, <code>owner</code></td>
+<td><code>id</code>, FK <code>code</code></td>
+</tr>
+<tr>
+<td>OpenSpace</td>
+<td><code>eventos</code></td>
+<td>Eventos: <code>pregunta</code>, <code>lugares</code> y <code>horarios</code> (JSON), <code>facilitador</code> (token), <code>demo</code></td>
+<td><code>code</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>sesiones</code></td>
+<td>Sesiones propuestas: <code>titulo</code>, <code>autor</code>, <code>tipo</code>, <code>lugar</code>, <code>hora</code>, <code>interes</code>, <code>token</code>, <code>estado</code>, <code>notas</code>, <code>decisiones</code>, <code>proximo_paso</code></td>
+<td><code>id</code>, FK <code>code</code>, único <code>(code, lugar, hora)</code></td>
+</tr>
+</tbody></table></div>
+<p>El <code>code</code> (6 caracteres, sin letras ambiguas) es la llave de cada tablero y de su ejemplo (<code>ACME01</code>). Los ejemplos <code>ACME01</code> se crean con las migraciones <code>*_acme*.sql</code>.</p>
+<h2 id="operar-la-base">Operar la base<a class="anchor" href="#operar-la-base" aria-label="Enlace a esta sección">#</a></h2>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code># Ver una base local (después de make up ENV=dev)
+sqlite3 .local/dev/state/v3/d1/miniflare-D1DatabaseObject/*.sqlite &quot;.tables&quot;
+
+# Borrar los datos locales de un ambiente
+make reset ENV=dev
+
+# Exportar la base de producción (respaldo)
+npx wrangler d1 export leadership-lab --remote --output .local/backups/leadership-lab.sql
+</code></pre></div>
+<p><code>make deploy</code> ya exporta un respaldo a <code>.local/backups/</code> antes de publicar.</p>
+
+    </article>
+    <nav class="pager" aria-label="Páginas"><a class="prev" href="ambientes.html"><small>Anterior</small>Ambientes</a><a class="next" href="desarrollo.html"><small>Siguiente</small>Desarrollo</a></nav>
+    <footer class="credit">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></footer>
+  </main>
+  <aside class="toc" aria-label="En esta página"><p>En esta página</p><ul><li class="l2"><a href="#migraciones">Migraciones</a></li><li class="l2"><a href="#tablas">Tablas</a></li><li class="l2"><a href="#operar-la-base">Operar la base</a></li></ul></aside>
+</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/docs.js"></script>
+
+</body>
+</html>

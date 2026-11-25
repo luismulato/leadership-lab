@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build output and local environments (data, logs, pids)
+build/
+.local/
+
+# secrets: only .env.example is versioned
+.env
+.env.*
+!.env.example
+
+# test output
+test-results/
+playwright-report/
+
+# wrangler / editors / OS
+.wrangler/
+.dev*
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# tema de marca entregado aparte (.zip): no se versiona
+apps/shell/skin/temas/*/
+!apps/shell/skin/temas/default/
+dist/

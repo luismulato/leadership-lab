@@ -1,0 +1,56 @@
+{
+  "_doc": "Single source of truth for the three environments. 'target' selects where an environment runs: 'local' (wrangler pages dev, own port and own local database) or 'cloudflare' (own Pages project, D1 database and KV namespace). Every environment carries both blocks, so moving 'test' to Cloudflare is just changing its 'target'. Cloudflare ids are filled in by scripts/cloudflare-bootstrap.sh.",
+  "app_id": "leadership-lab",
+  "compatibility_date": "2026-10-01",
+  "environments": {
+    "dev": {
+      "description": "Development: your machine, hot rebuild with `make dev`.",
+      "target": "local",
+      "feedback_form_url": "https://tally.so/embed/bZW1bL?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1",
+      "local": {
+        "port": 8090,
+        "data_dir": ".local/dev"
+      },
+      "cloudflare": {
+        "pages_project": "leadership-lab-dev",
+        "d1_database": "leadership-lab-dev",
+        "d1_id": "",
+        "kv_id": "",
+        "url": ""
+      }
+    },
+    "test": {
+      "description": "Tests: clean, isolated copy used by `make test` and for manual QA. Starts with an empty database.",
+      "target": "local",
+      "feedback_form_url": "https://tally.so/embed/bZW1bL?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1",
+      "local": {
+        "port": 8190,
+        "data_dir": ".local/test",
+        "reset_on_up": true
+      },
+      "cloudflare": {
+        "pages_project": "leadership-lab-test",
+        "d1_database": "leadership-lab-test",
+        "d1_id": "",
+        "kv_id": "",
+        "url": "https://leadership-lab-test.pages.dev"
+      }
+    },
+    "prod": {
+      "description": "Production: Cloudflare Pages + D1 + KV.",
+      "target": "cloudflare",
+      "feedback_form_url": "https://tally.so/embed/bZW1bL?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1",
+      "local": {
+        "port": 8290,
+        "data_dir": ".local/prod"
+      },
+      "cloudflare": {
+        "pages_project": "leadership-lab",
+        "d1_database": "leadership-lab",
+        "d1_id": "",
+        "kv_id": "",
+        "url": "https://leadership-lab.pages.dev"
+      }
+    }
+  }
+}

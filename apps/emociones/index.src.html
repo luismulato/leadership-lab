@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Guía del listado de emociones, canvas descargable en PDF y un check-in de equipo compartido con código, para ponerle nombre a lo que sentimos y llegar a la necesidad.">
+<title>Listado de Emociones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root { color-scheme: light; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+/*BASE_CSS*/
+
+/* Listado de Emociones */
+.pill { display: inline-flex; align-items: center; font: 500 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; padding: 6px 9px; border-radius: 999px; border: 1.5px solid var(--ink-2); color: var(--ink); white-space: nowrap; }
+.pill.q-ad { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.pill.q-aa { border-color: var(--accent); color: var(--accent); }
+.pill.q-bd { border-color: var(--ink-2); color: var(--ink-2); border-style: dashed; }
+.pill.q-ba { border-color: var(--ink); color: var(--ink); }
+.qgrid { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); margin: 0 0 1.6em; }
+@media (min-width: 640px) { .qgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.qcard { background: var(--surface); border: 1px solid var(--rule); border-top: 3px solid var(--ink); padding: 16px 16px 14px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.qcard.q-aa { border-top-color: var(--accent); }
+.qcard.q-bd { border-top-color: var(--ink-2); border-top-style: dashed; }
+.qcard.q-ba { border-top-style: double; border-top-width: 5px; }
+.qcard h3 { font-family: var(--f-display); font-weight: 400; font-size: 1.3rem; line-height: 1.15; margin: 0; }
+.qcard .sub2 { margin: 0; font: 500 12px/1.3 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.wlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.wlist li { font-size: 15px; line-height: 1.4; }
+.wlist b { font-weight: 600; }
+.wlist .wd-d { color: var(--ink-2); }
+.wlist .wd-q { display: block; font-size: 14px; color: var(--ink-2); font-style: italic; }
+.axes { display: grid; gap: 8px; margin: 0 0 1.4em; padding: 14px 18px; background: var(--accent-soft); font-size: 15px; line-height: 1.5; }
+.axes p { margin: 0; }
+.alarms { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); margin: 0 0 1.6em; padding: 0; list-style: none; }
+@media (min-width: 640px) { .alarms { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.alarms li { background: var(--surface); border: 1px solid var(--rule); padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.alarms h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; }
+.alarms p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
+.alarms .deb { color: var(--ink); font-style: italic; }
+.steps { list-style: none; margin: 0 0 1.6em; padding: 0; display: grid; gap: 12px; }
+.steps > li { display: grid; grid-template-columns: 2.4em 1fr; gap: 4px 12px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.steps .n { font-family: var(--f-display); font-size: 1.9rem; line-height: 1; color: var(--accent); }
+.steps h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.25rem; line-height: 1.15; }
+.steps p { margin: 4px 0 0; grid-column: 2; font-size: 15px; color: var(--ink-2); }
+.needs { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0 0 1.4em; padding: 0; }
+.needs li { margin: 0; font: 500 13px/1 var(--f-mono); letter-spacing: .06em; padding: 8px 12px; background: var(--accent-soft); border-radius: 999px; }
+.duo { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); margin: 0 0 1.6em; }
+@media (min-width: 640px) { .duo { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.duo > div { background: var(--surface); border: 1px solid var(--rule); padding: 14px 16px; }
+.duo h3 { margin: 0 0 6px; font-family: var(--f-display); font-weight: 400; font-size: 1.2rem; }
+.duo p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.tbl-wrap { overflow-x: auto; margin: 0 0 1.4em; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 15px; }
+.tbl th, .tbl td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.tbl th { font: 500 12px/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.hint { margin: 0; font-size: 14px; color: var(--ink-2); }
+
+/* simulador */
+.panel { background: var(--surface); border: 1px solid var(--rule); border-top: 3px solid var(--accent); padding: 20px; margin-top: 18px; display: grid; gap: 14px; }
+.panel h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.5rem; line-height: 1.15; }
+.fld { display: grid; gap: 6px; }
+.fld > label, .fld > .lb { font: 500 12px/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.row2 { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 720px) { .row2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.b-in.full { width: 100%; flex: none; }
+textarea.b-in { resize: vertical; min-height: 72px; }
+select.b-in { appearance: auto; }
+.pick { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 720px) { .pick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pick fieldset { margin: 0; padding: 12px; border: 1px solid var(--rule); border-top: 3px solid var(--ink); min-width: 0; }
+.pick fieldset.q-aa { border-top-color: var(--accent); }
+.pick fieldset.q-bd { border-top-color: var(--ink-2); border-top-style: dashed; }
+.pick fieldset.q-ba { border-top-style: double; border-top-width: 5px; }
+.pick legend { font: 500 12px/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); padding: 0 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wd { appearance: none; cursor: pointer; font: 500 14px/1 var(--f-body); color: var(--ink); background: var(--bg); border: 1.5px solid var(--rule); border-radius: 999px; padding: 9px 12px; }
+.wd:hover { border-color: var(--ink); }
+.wd[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.sel { margin: 0; padding: 12px 14px; background: var(--accent-soft); font-size: 15px; line-height: 1.5; min-height: 3em; }
+.sel b { font-weight: 600; }
+.sel em { display: block; color: var(--ink-2); }
+.stats { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
+@media (min-width: 720px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.stat { background: var(--surface); border: 1px solid var(--rule); padding: 12px 14px; display: grid; gap: 4px; min-width: 0; }
+.stat .k { font: 500 11px/1.3 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.stat .v { font-family: var(--f-display); font-size: 2rem; line-height: 1; }
+.read { margin-top: 14px; padding: 16px 18px; background: var(--accent-soft); border-left: 4px solid var(--accent); display: grid; gap: 6px; }
+.read h3 { margin: 0; font: 500 12px/1.2 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.read p { margin: 0; font-size: 15.5px; line-height: 1.55; }
+.map { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); margin-top: 18px; }
+@media (min-width: 720px) { .map { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.map .qcard .chips { min-height: 2.4em; }
+.map .qcard .empty { margin: 0; font-size: 14px; font-style: italic; color: var(--ink-2); }
+.mw { font: 500 14px/1 var(--f-body); background: var(--accent-soft); padding: 8px 11px; border-radius: 999px; }
+.mw i { font-style: normal; font-family: var(--f-mono); font-size: 12px; margin-left: 6px; color: var(--ink-2); }
+.axl { display: flex; justify-content: space-between; gap: 8px; margin-top: 18px; font: 500 12px/1.3 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.list li { display: grid; gap: 6px; background: var(--surface); border: 1px solid var(--rule); padding: 12px 14px; overflow-wrap: anywhere; }
+.list li.mine { border-left: 4px solid var(--accent); }
+.list .top { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.list .who { font-weight: 600; }
+.list .wrd { font-family: var(--f-display); font-size: 1.15rem; }
+.list .nt2 { margin: 0; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+.list .nd { margin: 0; font: 500 12px/1.4 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.list .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.list .acts button { appearance: none; cursor: pointer; border: 0; background: transparent; color: var(--ink-2); font: 500 12px/1 var(--f-mono); padding: 8px 4px; text-decoration: underline; text-underline-offset: 3px; }
+.list .acts button:hover, .list .acts button.arm { color: var(--accent); }
+.list li.ex { background: transparent; border-style: dashed; color: var(--ink-2); font-style: italic; }
+.sh { font-family: var(--f-display); font-weight: 400; font-size: 1.5rem; margin: 26px 0 0; }
+.b-wrap { padding-block: 28px 80px; }
+@media print { .rail, .actions { display: none; } }
+.b-panel p.b-acme-line{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:14px;margin:0}
+</style>
+</head>
+<body>
+
+<div id="v-guide">
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Guía, canvas y check-in compartido</p>
+    <h1>Ponerle nombre a lo que <em>sentimos</em></h1>
+    <p class="sub">Un medidor de cuatro cuadrantes para llegar de la emoción a la necesidad, y de ahí a un pedido</p>
+    <ul class="facts">
+      <li><b>4</b> cuadrantes de energía y agrado</li>
+      <li><b>11</b> necesidades universales</li>
+      <li><b>1</b> palabra por persona</li>
+    </ul>
+    <div>
+      <div class="actions">
+        <button class="btn primary" type="button" data-go="build">Armar el check-in de mi equipo</button>
+        <a class="btn" id="btn-blank" href="https://drive.google.com/file/d/1q8K7Q2qpj5LMAB0aLLCHF4nfZLhG3Izv/view?usp=sharing" target="_blank" rel="noopener">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10M6 9.5l4 4 4-4M4 16.5h12"/></svg>
+          Ver el listado de emociones (PDF)
+        </a>
+        <a class="link" href="#guia">Leer la guía</a>
+        <a class="link" href="#ejemplo" data-example>Ver el ejemplo de ACME</a>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap" id="guia">
+  <div class="layout">
+    <nav class="rail" aria-label="Contenido de la guía">
+      <details id="d-toc" open><summary>En esta guía</summary><ul id="toc"></ul></details>
+    </nav>
+    <article id="guide" aria-label="Guía del listado de emociones">
+<p>Este listado sirve para ubicarte en un mapa de cuatro cuadrantes, ponerle una palabra a lo que te pasa y preguntarte qué necesidad hay detrás. La pregunta que lo acompaña es simple: ¿qué historia me cuento, miedo o alegría?</p>
+<p>La emoción no se discute ni se corrige: se registra. Una vez que tiene nombre, es más fácil ver qué estamos intentando cuidar y qué podemos pedir.</p>
+
+<h2 id="s-uso">Cómo se usa el listado</h2>
+<ol class="steps">
+  <li><span class="n">1</span><h3>Ubicate en el mapa</h3><p>Primero la energía: ¿llegás con mucha o con poca? Después el agrado: ¿lo que sentís es agradable o desagradable? Con esas dos preguntas ya tenés un cuadrante.</p></li>
+  <li><span class="n">2</span><h3>Elegí una palabra</h3><p>Dentro del cuadrante, buscá la que mejor te describe hoy. Una sola. Si ninguna te cierra, usá la más cercana y decí la tuya en voz alta.</p></li>
+  <li><span class="n">3</span><h3>Mirá qué te mueve</h3><p>En tríos, conversen: ¿qué cosas te mueven de un lugar a otro del mapa? Cambiar de cuadrante es normal y pasa varias veces por día.</p></li>
+  <li><span class="n">4</span><h3>Ponele una necesidad</h3><p>Si querés ir un paso más, preguntate qué necesidad hay detrás de esa palabra. La lista de necesidades está más abajo.</p></li>
+</ol>
+<p>El medidor de cuatro cuadrantes está basado en el modelo RULER (Yale Center for Emotional Intelligence). Se puede usar de pie, ubicándose en el piso según cómo llega cada persona, o en el simulador de esta página.</p>
+
+<h2 id="s-cuadrantes">Los cuatro cuadrantes</h2>
+<div class="axes">
+  <p><b>Eje vertical, energía:</b> arriba, alta energía; abajo, baja energía.</p>
+  <p><b>Eje horizontal, agrado:</b> a un lado lo desagradable; al otro, lo agradable.</p>
+</div>
+<p>Las palabras de cada cuadrante son material de apoyo para empezar. No son una lista cerrada: si tu palabra no está, escribila en la conversación. Cada una trae una definición breve y una pregunta para llegar a la necesidad.</p>
+<div id="g-quads"></div>
+
+<h2 id="s-datos">Las emociones son datos</h2>
+<div class="duo">
+  <div><h3>Señales del cuerpo</h3><p>Traen información sobre mí y sobre lo que pasa con los demás.</p></div>
+  <div><h3>No son buenas ni malas</h3><p>Se gestionan. Nos acercan o nos alejan, y guían nuestras decisiones, con o sin conciencia.</p></div>
+</div>
+<p>Las emociones avisan de mis necesidades. Cuando son agradables, una necesidad está cuidada. Cuando son desagradables, una necesidad pide atención. Por eso el cuadrante donde caés no dice quién sos: dice dónde estás ahora.</p>
+
+<h2 id="s-mentalidad">Mentalidad reactiva y creativa</h2>
+<div class="duo">
+  <div><h3>Reactiva</h3><p>Impulsada por el miedo a no encajar. Estrés, ansiedad, frustración, ira.</p></div>
+  <div><h3>Creativa</h3><p>Autoconsciente: elige sus respuestas. Energía, calma, conexión, curiosidad.</p></div>
+</div>
+<p>Para conversar: ¿desde cuál lidero hoy? ¿Y qué me pasa en el cuerpo cuando cambio de una a otra? El listado ayuda a notar ese cambio con una palabra.</p>
+
+<h2 id="s-alarmas">Mis alarmas</h2>
+<p>Hay seis emociones que suenan como alarmas. Cada una tiene un «debería» escondido, y detrás de cada «debería» hay algo que me importa.</p>
+<ul class="alarms">
+  <li><h3>Enojo</h3><p class="deb">«Él o ella no debería haber hecho eso.»</p><p>Algo importante fue cruzado: un límite, un valor, la justicia.</p></li>
+  <li><h3>Frustración</h3><p class="deb">¿Hay un «debería» aquí?</p><p>Una necesidad no encuentra camino.</p></li>
+  <li><h3>Tristeza</h3><p class="deb">¿Hay un «debería» aquí?</p><p>Algo que valoro se perdió o se aleja.</p></li>
+  <li><h3>Apagamiento</h3><p class="deb">«No debería pasar por esto.»</p><p>Sobrecarga, o falta de sentido o de seguridad.</p></li>
+  <li><h3>Culpa</h3><p class="deb">«No debería haber hecho eso.»</p><p>Hice algo que choca con un valor mío. Pide reparar.</p></li>
+  <li><h3>Vergüenza</h3><p class="deb">«No debería ser así.»</p><p>Temo perder mi lugar o que no me acepten. Pide pertenecer.</p></li>
+</ul>
+<p><strong>Detrás de cada «debería» hay algo que me importa.</strong> Cuando suene una alarma, probá escribir la frase con «debería» y preguntarte qué es lo que te importa.</p>
+
+<h2 id="s-necesidad">De la emoción a la necesidad y a la estrategia</h2>
+<p>Detrás de todo lo que hacemos hay una necesidad que intentamos cuidar. Las necesidades humanas universales que usamos en el taller son:</p>
+<ul class="needs" id="g-needs"></ul>
+<div class="duo">
+  <div><h3>Necesidad: el qué</h3><p>Lo que es importante para mí. Es universal: la tenemos todos. No nombra a nadie ni a nada.</p></div>
+  <div><h3>Estrategia: el cómo</h3><p>La forma concreta de cuidarla. Tiene quién, qué, cuándo y dónde. Hay muchas para cada necesidad.</p></div>
+</div>
+<p><strong>La prueba:</strong> si nombra una persona, un lugar, una acción, un tiempo o un objeto, es una estrategia. Los conflictos viven en las estrategias.</p>
+<div class="tbl-wrap"><table class="tbl">
+  <thead><tr><th>Frase</th><th>¿Qué es?</th></tr></thead>
+  <tbody>
+    <tr><td>«Que mi jefe me felicite delante del equipo.»</td><td>Estrategia. La necesidad es reconocimiento.</td></tr>
+    <tr><td>«Home office los viernes.»</td><td>Estrategia.</td></tr>
+    <tr><td>«Que el cliente conteste el mail hoy.»</td><td>Estrategia.</td></tr>
+    <tr><td>«Que no me interrumpan cuando reviso.»</td><td>Estrategia.</td></tr>
+    <tr><td>«Reconocimiento.»</td><td>Necesidad.</td></tr>
+    <tr><td>«Confianza.»</td><td>Necesidad.</td></tr>
+  </tbody>
+</table></div>
+<p>Cuando una necesidad se siente amenazada, aparece una emoción y es fácil reaccionar: atacar, huir o apagarse. Esa reacción es una estrategia trágica porque no me acerca a lo que era importante para mí. La pregunta para frenar es: <strong>¿esto me acerca a lo que me importaba?</strong></p>
+
+<h2 id="s-pedido">Cómo cerrar con un pedido</h2>
+<p>La comunicación no violenta, de Marshall Rosenberg, ordena la conversación en cuatro pasos. Hacia adentro es autoempatía; hacia el otro, empatía.</p>
+<ol class="steps">
+  <li><span class="n">1</span><h3>Observación: lo que pasó</h3><p>Hechos que viste, sin interpretar.</p></li>
+  <li><span class="n">2</span><h3>Sentimiento: lo que siento</h3><p>Acá entra tu palabra del listado.</p></li>
+  <li><span class="n">3</span><h3>Necesidad: lo que me importa</h3><p>La del listado de arriba, sin nombrar a nadie.</p></li>
+  <li><span class="n">4</span><h3>Pedido: lo que propongo</h3><p>Una estrategia concreta, que la otra persona pueda aceptar o proponer otra. Un pedido, no una exigencia.</p></li>
+</ol>
+<div class="ej-label">Un ejemplo</div>
+<p class="ej">«Cuando la reunión empezó sin repasar la agenda (observación), me sentí ansioso (sentimiento), porque necesito claridad (necesidad). ¿Podemos dedicar los primeros cinco minutos a repasar la agenda? (pedido)»</p>
+
+<h2 id="s-simulador">Cómo usar el simulador</h2>
+<ul>
+  <li>Creá un check-in con el nombre del equipo. Recibís un código de 6 caracteres para compartir.</li>
+  <li>Cada persona entra con el código, sin cuenta, y escribe un apodo.</li>
+  <li>Elige una palabra del listado y ve a qué cuadrante pertenece. Puede sumar una nota breve y la necesidad que cree que hay detrás.</li>
+  <li>El tablero muestra el mapa del equipo, el conteo por cuadrante, la lista de check-ins y una lectura simple del grupo, sin juicio.</li>
+  <li>Cada persona puede editar o quitar solo sus propios check-ins, desde el mismo navegador. Todos ven todo.</li>
+  <li>Al final podés descargar el check-in del equipo en PDF.</li>
+</ul>
+<p class="hint">Todo queda guardado. Podés volver con el mismo código y seguir otro día.</p>
+    </article>
+  </div>
+</div>
+</div>
+
+<div id="v-build" hidden>
+  <div class="wrap">
+    <div class="b-top">
+      <span class="brand">Listado de Emociones</span>
+      <button class="btn sm quiet" type="button" data-go="guide">Volver a la guía</button>
+    </div>
+    <div class="b-wrap">
+      <section class="b-land" id="b-land" aria-labelledby="b-h">
+        <p class="eyebrow">Tu propio check-in</p>
+        <h2 id="b-h">Hagan el check-in de su equipo</h2>
+        <p class="lead">Creá un check-in con el nombre de tu equipo y compartí el código. Cada persona elige una palabra, ve su cuadrante y suma la necesidad que cree que hay detrás. Queda guardado para volver.</p>
+        <div class="b-panels">
+          <form class="b-panel" id="f-create" autocomplete="off">
+            <h3>Crear un check-in</h3>
+            <p>Ponele nombre a tu equipo y recibí un código para compartir.</p>
+            <div class="b-row"><input class="b-in" id="in-name" type="text" maxlength="60" placeholder="Nombre del equipo" aria-label="Nombre del equipo"><button class="btn primary sm" id="b-create" type="submit">Crear</button></div>
+          </form>
+          <form class="b-panel" id="f-join" autocomplete="off">
+            <h3>Entrar con un código</h3>
+            <p>Si alguien de tu equipo ya creó el check-in, pegá su código.</p>
+            <div class="b-row"><input class="b-in b-code" id="in-code" type="text" maxlength="8" placeholder="ABC-123" aria-label="Código del check-in"><button class="btn sm" id="b-join" type="submit">Entrar</button></div>
+            <p class="b-acme-line">¿Solo quieres ver cómo funciona? <button class="btn sm quiet" id="b-example" type="button">Abrir el ejemplo de ACME</button></p>
+          </form>
+        </div>
+        <p class="b-err" id="b-err" role="alert"></p>
+      </section>
+
+      <section id="b-app" hidden>
+        <div class="b-head">
+          <div><p class="eyebrow">Check-in del equipo</p><h2 id="b-name"></h2></div>
+          <div class="b-row">
+            <button class="b-chip" id="b-chip" type="button" aria-label="Copiar el código del check-in"></button>
+            <button class="btn sm" id="b-pdf" type="button">Descargar el check-in (PDF)</button>
+            <button class="btn sm quiet" id="b-leave" type="button">Salir</button>
+          </div>
+        </div>
+        <div class="b-meta" style="margin-top:14px"><span id="b-prog"></span><span id="b-live">Sincronizando…</span></div>
+        <div class="b-notice" id="b-ex" hidden><span>Ejemplo ficticio de ACME. Es de solo lectura.</span><button class="btn sm primary" id="b-mine" type="button">Armar el mío</button></div>
+        <div class="b-notice" id="b-notice" hidden><span>Check-in creado. Usá «Copiar código» para que el equipo entre.</span><button class="btn sm" id="b-copy2" type="button">Copiar código</button><button class="btn sm quiet" id="b-ok" type="button">Entendido</button></div>
+
+        <form class="panel" id="f-ci" autocomplete="off" aria-labelledby="ci-h">
+          <h3 id="ci-h">Tu check-in</h3>
+          <div class="fld"><label for="ci-nick">Tu apodo</label><input class="b-in full" id="ci-nick" type="text" maxlength="30" placeholder="Cómo te llamás en este tablero"></div>
+          <div class="fld"><span class="lb" id="ci-wl">Elegí una palabra</span><div class="pick" id="pick" role="group" aria-labelledby="ci-wl"></div></div>
+          <p class="sel" id="sel" aria-live="polite">Elegí una palabra para ver su cuadrante.</p>
+          <div class="row2">
+            <div class="fld"><label for="ci-note">Una nota breve (opcional)</label><textarea class="b-in full" id="ci-note" maxlength="300" placeholder="Qué la despierta hoy, en pocas palabras"></textarea></div>
+            <div class="fld"><label for="ci-need">La necesidad que creo que hay detrás (opcional)</label><select class="b-in full" id="ci-need"></select></div>
+          </div>
+          <p class="b-err" id="ci-err" role="alert"></p>
+          <div class="b-row"><button class="btn primary sm" id="ci-save" type="submit">Sumar mi check-in</button><button class="btn sm quiet" id="ci-cancel" type="button" hidden>Cancelar la edición</button></div>
+        </form>
+
+        <div class="stats" id="stats"></div>
+        <div class="read" id="read" aria-live="polite"></div>
+        <div class="axl" aria-hidden="true"><span>Mapa del equipo</span><span>Arriba: alta energía · Abajo: baja energía</span></div>
+        <div class="map" id="map"></div>
+        <h3 class="sh">Los check-ins</h3>
+        <ul class="list" id="list"></ul>
+        <p class="b-foot" id="b-foot" style="margin-top:18px">Cualquiera con el código ve todo el tablero. Cada persona edita o quita solo lo que escribió, desde el mismo navegador.</p>
+      </section>
+    </div>
+  </div>
+  <div class="toast" id="b-toast" role="status" hidden></div>
+</div>
+
+<script>
+(function () {
+  /* ---------- Datos fijos ---------- */
+  var DATA = /*WORDS_JSON*/null;
+  var Q = {}, W = {}, ORDER = ["ad", "aa", "bd", "ba"];
+  DATA.quadrants.forEach(function (q) { Q[q.id] = q; q.words.forEach(function (w) { W[w.w] = { w: w.w, d: w.d, q: w.q, quad: q.id }; }); });
+  var NEEDS = DATA.needs;
+  var QASK = {
+    ad: "¿Qué necesidad puede estar pidiendo atención?",
+    aa: "¿Qué necesidad se está cuidando y cómo la sostenemos?",
+    bd: "¿Qué necesita el equipo para recuperar energía?",
+    ba: "¿Qué nos permite estar así y cómo lo cuidamos?"
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function normCode(s) { return String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); }
+  function showCode(c) { return c.length > 3 ? c.slice(0, 3) + "-" + c.slice(3) : c; }
+  function genCode() { var a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", o = "", b = new Uint32Array(6); crypto.getRandomValues(b); for (var i = 0; i < 6; i++) o += a[b[i] % a.length]; return o; }
+  function genOwner() { var a = new Uint8Array(16); crypto.getRandomValues(a); return Array.prototype.map.call(a, function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); }
+  function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+  var OWNER = store("em.owner"); if (!OWNER) { OWNER = genOwner(); store("em.owner", OWNER); }
+  var tt;
+  function toast(m) { var t = $("b-toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(function () { t.hidden = true; }, 2800); }
+  function err(m) { $("b-err").textContent = m || ""; }
+  function say(m, bad) { var s = $("status"); s.textContent = m; s.className = "status" + (bad ? " err" : ""); }
+
+  function api(method, path, body) {
+    var h = { "x-owner": OWNER }; if (body) h["content-type"] = "application/json";
+    return fetch("/emociones/api" + path, { method: method, headers: h, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || "No se pudo completar la acción."); e.status = r.status; throw e; } return j; }); });
+  }
+
+  /* ---------- Guía: cuadrantes, necesidades e índice ---------- */
+  (function () {
+    $("g-quads").innerHTML = '<div class="qgrid" style="grid-template-columns:minmax(0,1fr)">' + ORDER.map(function (id) {
+      var q = Q[id];
+      return '<section class="qcard q-' + id + '" aria-labelledby="gq-' + id + '"><h3 id="gq-' + id + '">' + esc(q.name) + '</h3><ul class="wlist">' +
+        q.words.map(function (w) { return "<li><b>" + esc(w.w) + '</b> <span class="wd-d">' + esc(w.d) + '</span><span class="wd-q">' + esc(w.q) + "</span></li>"; }).join("") + "</ul></section>";
+    }).join("") + "</div>";
+    $("g-needs").innerHTML = NEEDS.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("");
+    var h = document.querySelectorAll("#guide h2"), out = "";
+    Array.prototype.forEach.call(h, function (el) { out += '<li><a href="#' + el.id + '" data-t="' + el.id + '">' + esc(el.textContent) + "</a></li>"; });
+    $("toc").innerHTML = out;
+    if (window.matchMedia && !window.matchMedia("(min-width: 960px)").matches) $("d-toc").open = false;
+    try {
+      var links = {};
+      Array.prototype.forEach.call(document.querySelectorAll(".rail a[data-t]"), function (a) { links[a.dataset.t] = a; });
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { var a = links[e.target.id]; if (a && e.isIntersecting) { Array.prototype.forEach.call(document.querySelectorAll(".rail a.on"), function (x) { x.classList.remove("on"); }); a.classList.add("on"); } });
+      }, { rootMargin: "-15% 0px -70% 0px" });
+      Array.prototype.forEach.call(h, function (el) { io.observe(el); });
+    } catch (e) {}
+  })();
+
+  /* ---------- Lectura del grupo (sin juicio) ---------- */
+  function counts(items) { var c = { ad: 0, aa: 0, bd: 0, ba: 0 }; items.forEach(function (n) { if (c[n.quadrant] != null) c[n.quadrant]++; }); return c; }
+  function topNeeds(items) {
+    var m = {}; items.forEach(function (n) { if (n.need) m[n.need] = (m[n.need] || 0) + 1; });
+    return Object.keys(m).sort(function (a, b) { return m[b] - m[a] || a.localeCompare(b); }).slice(0, 3).map(function (k) { return k + " (" + m[k] + ")"; });
+  }
+  function reading(items) {
+    var n = items.length;
+    if (!n) return ["Todavía no hay palabras en el mapa. Cuando alguien sume la suya, acá aparece una lectura simple del grupo."];
+    var c = counts(items), max = Math.max.apply(null, ORDER.map(function (k) { return c[k]; }));
+    var dom = ORDER.filter(function (k) { return c[k] === max; });
+    var lines = [];
+    if (dom.length === 1) lines.push(max + " de " + n + (n === 1 ? " palabra está" : " palabras están") + " en " + Q[dom[0]].name.toLowerCase() + ". " + QASK[dom[0]]);
+    else if (dom.length === ORDER.length) lines.push("Las palabras se reparten parejo entre los cuatro cuadrantes: el grupo llega desde lugares distintos.");
+    else lines.push("Hay un empate entre " + dom.map(function (k) { return Q[k].name.toLowerCase(); }).join(" y ") + ", con " + max + (max === 1 ? " palabra" : " palabras") + " cada uno.");
+    var hi = c.ad + c.aa, un = c.ad + c.bd;
+    lines.push("Por energía: " + hi + " alta, " + (n - hi) + " baja. Por agrado: " + un + " desagradable, " + (n - un) + " agradable.");
+    var nd = topNeeds(items); if (nd.length) lines.push("Necesidades más nombradas: " + nd.join(", ") + ".");
+    lines.push("Es un dato sobre cómo llega el grupo hoy, no un juicio sobre nadie.");
+    return lines;
+  }
+
+  /* ---------- PDF ---------- */
+  function latin(s) { return String(s).replace(/[‘’]/g, "'").replace(/[“”«»]/g, '"').replace(/[–—]/g, "-").replace(/…/g, "...").replace(/≥/g, ">=").replace(/[^\u0000-ÿ]/g, ""); }
+  var INK = [43, 43, 43], MUT = [100, 100, 100];
+  var QFILL = { ad: [228, 228, 228], aa: [237, 237, 237], bd: [214, 214, 214], ba: [224, 224, 224] };
+  function pdfNew() { return new window.jspdf.jsPDF({ orientation: "landscape", unit: "mm", format: "a4" }); }
+  function fnt(doc, st, sz, col) { doc.setFont("helvetica", st); doc.setFontSize(sz); doc.setTextColor(col[0], col[1], col[2]); }
+  function pdfHeader(doc, title, sub1, sub2, right1, right2, subX) {
+    var W = 297;
+    doc.setFillColor(74, 134, 232); doc.rect(0, 0, W, 22, "F");
+    fnt(doc, "bold", 20, INK); doc.text(latin(title), 12, 14.5);
+    fnt(doc, "normal", 9, [27, 27, 27]); doc.text(latin(sub1), subX || 100, 10); doc.text(latin(sub2), subX || 100, 15);
+    if (right1) {
+      doc.setFillColor(255, 255, 255); doc.roundedRect(222, 4, 63, 6.5, 3.25, 3.25, "F"); doc.roundedRect(222, 12, 63, 6.5, 3.25, 3.25, "F");
+      fnt(doc, "bold", 7, INK); doc.text(latin(right1).slice(0, 38), 226, 8.4); doc.text(latin(right2).length > 38 ? latin(right2).slice(0, 35) + "..." : latin(right2), 226, 16.4);
+    }
+  }
+  function quadRects() {
+    var M = 12, gap = 4, w = (297 - 2 * M - gap) / 2, top = 27, h = 82;
+    var o = {}; ORDER.forEach(function (id, i) { o[id] = { x: M + (i % 2) * (w + gap), y: top + Math.floor(i / 2) * (h + gap), w: w, h: h }; });
+    return o;
+  }
+  function pdfListado() {
+    var doc = pdfNew(), R = quadRects();
+    pdfHeader(doc, "Listado de emociones", "Una palabra para cómo llego hoy y la necesidad", "que puede haber detrás, en cuatro cuadrantes.", "FECHA", "EQUIPO");
+    ORDER.forEach(function (id) {
+      var q = Q[id], r = R[id];
+      doc.setFillColor(QFILL[id][0], QFILL[id][1], QFILL[id][2]); doc.rect(r.x, r.y, r.w, r.h, "F");
+      fnt(doc, "bold", 10, INK); doc.text(latin(q.name), r.x + 3, r.y + 6);
+      var colW = (r.w - 9) / 2;
+      q.words.forEach(function (w, i) {
+        var cx = r.x + 3 + (i % 2) * (colW + 3), cy = r.y + 12 + Math.floor(i / 2) * 11.4;
+        fnt(doc, "bold", 8.5, INK); doc.text(latin(w.w), cx, cy);
+        fnt(doc, "normal", 6.6, MUT);
+        doc.splitTextToSize(latin(w.d), colW).slice(0, 2).forEach(function (l, j) { doc.text(l, cx, cy + 3.4 + j * 2.9); });
+      });
+    });
+    fnt(doc, "normal", 7, MUT);
+    doc.text(latin("Medidor de cuatro cuadrantes basado en el modelo RULER (Yale Center for Emotional Intelligence). La lista de palabras es material de apoyo."), 12, 203);
+    doc.text("Listado de Emociones", 12, 207);
+    // página 2: de la emoción a la necesidad
+    doc.addPage();
+    pdfHeader(doc, "De la emoción a la necesidad", "La emoción es un dato: avisa de una necesidad.", "Detrás de cada «debería» hay algo que me importa.", null, null, 150);
+    var y = 32;
+    fnt(doc, "bold", 11, INK); doc.text("Mis alarmas", 12, y); y += 6;
+    var al = [["Enojo", "Algo importante fue cruzado: un límite, un valor, la justicia."], ["Frustración", "Una necesidad no encuentra camino."], ["Tristeza", "Algo que valoro se perdió o se aleja."], ["Apagamiento", "Sobrecarga, o falta de sentido o de seguridad."], ["Culpa", "Hice algo que choca con un valor mío. Pide reparar."], ["Vergüenza", "Temo perder mi lugar o que no me acepten. Pide pertenecer."]];
+    al.forEach(function (a, i) {
+      var cx = 12 + (i % 2) * 140, cy = y + Math.floor(i / 2) * 11;
+      fnt(doc, "bold", 9, INK); doc.text(a[0], cx, cy); fnt(doc, "normal", 8, MUT); doc.text(doc.splitTextToSize(a[1], 125)[0], cx, cy + 4.2);
+    });
+    y += 38;
+    fnt(doc, "bold", 11, INK); doc.text("Necesidades humanas universales", 12, y); y += 6;
+    fnt(doc, "normal", 9.5, INK); doc.splitTextToSize(latin(NEEDS.join("  ·  ")), 270).forEach(function (l, i) { doc.text(l, 12, y + i * 5); });
+    y += 16;
+    fnt(doc, "bold", 11, INK); doc.text("Los cuatro pasos para cerrar con un pedido", 12, y); y += 7;
+    [["1  Observación", "Lo que pasó"], ["2  Sentimiento", "Lo que siento"], ["3  Necesidad", "Lo que me importa"], ["4  Pedido", "Lo que propongo"]].forEach(function (s, i) {
+      var x = 12 + i * 68;
+      doc.setFillColor(237, 237, 237); doc.rect(x, y, 64, 30, "F");
+      fnt(doc, "bold", 9.5, INK); doc.text(s[0], x + 3, y + 7); fnt(doc, "normal", 8.5, MUT); doc.text(s[1], x + 3, y + 12.5);
+      doc.setDrawColor(170, 170, 170); doc.setLineWidth(0.2); doc.line(x + 3, y + 21, x + 61, y + 21); doc.line(x + 3, y + 27, x + 61, y + 27);
+    });
+    y += 38;
+    fnt(doc, "bold", 9, INK); doc.text("La prueba: si nombra una persona, un lugar, una acción, un tiempo o un objeto, es una estrategia.", 12, y);
+    fnt(doc, "normal", 7, MUT); doc.text("Listado de Emociones", 12, 207);
+    return doc.output("blob");
+  }
+  function pdfEquipo(name, code, items) {
+    var doc = pdfNew(), R = quadRects(), c = counts(items), M = 12;
+    pdfHeader(doc, "Check-in del equipo", "Una palabra para cómo llego hoy y la necesidad", "que puede haber detrás.", "FECHA  " + new Date().toLocaleDateString("es"), "EQUIPO  " + name.split(" · ").pop());
+    var over = false;
+    ORDER.forEach(function (id) {
+      var q = Q[id], r = R[id];
+      doc.setFillColor(QFILL[id][0], QFILL[id][1], QFILL[id][2]); doc.rect(r.x, r.y, r.w, r.h, "F");
+      fnt(doc, "bold", 10, INK); doc.text(latin(q.name + "  (" + c[id] + ")"), r.x + 3, r.y + 6);
+      var g = {}; items.filter(function (n) { return n.quadrant === id; }).forEach(function (n) { (g[n.word] = g[n.word] || []).push(n.nick); });
+      var ks = Object.keys(g).sort(function (a, b) { return g[b].length - g[a].length || a.localeCompare(b); }), y = r.y + 12, shown = 0;
+      fnt(doc, "normal", 8.5, INK);
+      for (var i = 0; i < ks.length; i++) {
+        var ls = doc.splitTextToSize(latin(ks[i] + (g[ks[i]].length > 1 ? " x" + g[ks[i]].length : "") + ": " + g[ks[i]].join(", ")), r.w - 8);
+        if (y + ls.length * 3.9 > r.y + r.h - 4) break;
+        ls.forEach(function (l, j) { doc.text(l, r.x + 4, y + j * 3.9); }); y += ls.length * 3.9 + 1.6; shown++;
+      }
+      if (shown < ks.length) { over = true; fnt(doc, "italic", 7.5, MUT); doc.text("+ " + (ks.length - shown) + " palabras más, en la página siguiente", r.x + 3, r.y + r.h - 1.5); }
+      if (!ks.length) { fnt(doc, "italic", 8, MUT); doc.text("Sin palabras todavía", r.x + 4, r.y + 12); }
+    });
+    var read = reading(items).join(" ");
+    doc.setFillColor(166, 166, 166); doc.rect(M, 177, 297 - 2 * M, 22, "F");
+    fnt(doc, "bold", 7.5, [34, 34, 34]); doc.text("LECTURA DEL GRUPO", M + 4, 182.5);
+    fnt(doc, "normal", 8, [34, 34, 34]); doc.splitTextToSize(latin(read), 297 - 2 * M - 8).slice(0, 3).forEach(function (l, j) { doc.text(l, M + 4, 187 + j * 3.9); });
+    fnt(doc, "normal", 7, MUT); doc.text(latin("Listado de Emociones" + (S.ex ? "  ·  Ejemplo ficticio de ACME, solo lectura" : "")), M, 205);
+    if (items.length) {
+      doc.addPage(); var y2 = M + 4; fnt(doc, "bold", 14, INK); doc.text(latin("Detalle del check-in: " + name), M, y2); y2 += 9;
+      items.forEach(function (n) {
+        var t = "[" + Q[n.quadrant].name + "] " + n.nick + ": " + n.word + (n.need ? "  (necesidad: " + n.need + ")" : "") + (n.note ? " - " + n.note : "");
+        fnt(doc, "normal", 9.5, INK);
+        var ls = doc.splitTextToSize(latin(t), 297 - 2 * M - 6);
+        if (y2 + ls.length * 4.6 > 205) { doc.addPage(); y2 = M + 4; }
+        doc.setFillColor(179, 38, 75); doc.circle(M + 1.2, y2 - 1.2, 0.6, "F");
+        ls.forEach(function (l, j) { fnt(doc, "normal", 9.5, INK); doc.text(l, M + 5, y2 + j * 4.6); });
+        y2 += ls.length * 4.6 + 1.6;
+      });
+    }
+    return doc.output("blob");
+  }
+  function saveBlob(blob, filename) {
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+    window.__lastBlob = { size: blob.size, type: blob.type, name: filename };
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  function slug(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "equipo"; }
+  /* ---------- Vistas ---------- */
+  function go(v) {
+    $("v-guide").hidden = v !== "guide"; $("v-build").hidden = v !== "build";
+    window.scrollTo(0, 0);
+    try { history.replaceState(null, "", v === "build" ? "#armar" : "#"); } catch (e) {}
+  }
+  document.addEventListener("click", function (e) {
+    var g = e.target.closest("[data-go]"); if (!g) return;
+    e.preventDefault(); go(g.getAttribute("data-go"));
+  });
+
+  /* ---------- Estado del check-in ---------- */
+  var S = { code: null, name: "", items: [], busy: 0, lastWrite: 0, armed: null, poll: null, wv: 0, created: false, ex: false, mine: {}, word: "", editing: null, sig: "" };
+
+  $("f-create").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var name = $("in-name").value.trim();
+    if (name.length < 2) { err("Escribí el nombre del equipo (mínimo 2 letras)."); $("in-name").focus(); return; }
+    $("b-create").disabled = true; err("");
+    try {
+      var code = null;
+      for (var i = 0; i < 6 && !code; i++) { var c = genCode(); try { await api("GET", "/boards/" + c); } catch (x) { if (x.status === 404) code = c; else throw x; } }
+      if (!code) throw new Error("No pude generar un código libre. Probá de nuevo.");
+      await api("POST", "/boards", { code: code, name: name });
+      S.created = true; await enter(code, name);
+    } catch (ex) { err(ex.message); }
+    $("b-create").disabled = false;
+  });
+  $("f-join").addEventListener("submit", function (e) { e.preventDefault(); enter($("in-code").value); });
+
+  async function enter(raw, knownName) {
+    var code = normCode(raw);
+    if (code.length < 4) { err("El código tiene al menos 4 caracteres."); return; }
+    err("");
+    var r;
+    try { r = await api("GET", "/boards/" + code); }
+    catch (ex) { S.created = false; err(ex.status === 404 ? "No hay un check-in con ese código. Revisá que esté bien escrito." : ex.message); return; }
+    S.ex = !!r.example;
+    S.code = code; S.name = knownName || r.name; S.items = []; S.armed = null; S.sig = ""; S.editing = null; S.word = "";
+    S.mine = {}; (store("em.mine." + code) || []).forEach(function (id) { S.mine[id] = 1; });
+    try { history.replaceState(null, "", S.ex ? "#ejemplo" : "#armar"); } catch (e) {}
+    showApp(); startPoll();
+  }
+
+  function showApp() {
+    $("b-land").hidden = true; $("b-app").hidden = false;
+    $("b-name").textContent = S.name; $("b-chip").textContent = "Copiar código";
+    $("b-notice").hidden = !S.created || S.ex; $("b-ex").hidden = !S.ex; $("f-ci").hidden = S.ex; $("b-foot").hidden = S.ex;
+    $("b-live").textContent = "Sincronizando…";
+    $("pick").innerHTML = ORDER.map(function (id) {
+      var q = Q[id];
+      return '<fieldset class="q-' + id + '"><legend>' + esc(q.name) + '</legend><div class="chips">' +
+        q.words.map(function (w) { return '<button type="button" class="wd" data-w="' + esc(w.w) + '" aria-pressed="false">' + esc(w.w) + "</button>"; }).join("") + "</div></fieldset>";
+    }).join("");
+    $("ci-need").innerHTML = '<option value="">Sin elegir</option>' + NEEDS.map(function (n) { return '<option value="' + esc(n) + '">' + esc(cap(n)) + "</option>"; }).join("");
+    $("ci-nick").value = store("em.nick") || "";
+    resetForm(); renderAll(); window.scrollTo(0, 0);
+  }
+  function leave() {
+    clearInterval(S.poll); S.poll = null; S.code = null; S.created = false; S.ex = false;
+    try { history.replaceState(null, "", "#armar"); } catch (e) {}
+    $("b-app").hidden = true; $("b-land").hidden = false;
+  }
+  $("b-leave").addEventListener("click", leave);
+  $("b-mine").addEventListener("click", function () { leave(); $("in-name").focus(); });
+  $("b-example").addEventListener("click", function () { enter("ACME01"); });
+  function copyCode() { var t = showCode(S.code); try { navigator.clipboard.writeText(t).then(function () { toast("Código copiado"); }, function () { toast("No pude copiar. Probá de nuevo."); }); } catch (e) { toast("No pude copiar. Probá de nuevo."); } }
+  $("b-chip").addEventListener("click", copyCode); $("b-copy2").addEventListener("click", copyCode);
+  $("b-ok").addEventListener("click", function () { S.created = false; $("b-notice").hidden = true; });
+
+  /* ---------- Sincronización ---------- */
+  function startPoll() {
+    clearInterval(S.poll);
+    var tick = async function () {
+      if (!S.code || S.busy > 0 || Date.now() - S.lastWrite < 1500) return;
+      try {
+        var wv = S.wv, code = S.code;
+        var r = await api("GET", "/boards/" + code + "/state");
+        // Descarta la respuesta si hubo una escritura mientras viajaba: traería datos viejos y taparía tu check-in.
+        if (S.busy > 0 || S.wv !== wv || S.code !== code || Date.now() - S.lastWrite < 1500) return;
+        S.items = r.checkins;
+        $("b-live").textContent = "Guardado y sincronizado"; renderAll();
+      } catch (e) { $("b-live").textContent = "Sin conexión. Sigue intentando; no hace falta recargar."; }
+    };
+    tick(); S.poll = setInterval(tick, 4000);
+  }
+  async function write(fn, undo) {
+    S.busy++; S.wv++; S.lastWrite = Date.now();
+    try { await fn(); } catch (e) { if (undo) undo(); renderAll(true); toast(e.message); }
+    S.busy--; S.wv++; S.lastWrite = Date.now();
+  }
+
+  /* ---------- Formulario ---------- */
+  function setWord(w) {
+    S.word = w || "";
+    Array.prototype.forEach.call(document.querySelectorAll("#pick .wd"), function (b) { b.setAttribute("aria-pressed", b.dataset.w === S.word ? "true" : "false"); });
+    var el = $("sel");
+    if (!S.word) { el.textContent = "Elegí una palabra para ver su cuadrante."; return; }
+    var d = W[S.word], q = Q[d.quad];
+    el.innerHTML = "<b>" + esc(d.w) + "</b> está en <b>" + esc(q.name) + "</b>. " + esc(d.d) + "<em>" + esc(d.q) + "</em>";
+  }
+  function resetForm() {
+    S.editing = null; setWord(""); $("ci-note").value = ""; $("ci-need").value = ""; $("ci-err").textContent = "";
+    $("ci-save").textContent = "Sumar mi check-in"; $("ci-cancel").hidden = true; $("ci-h").textContent = "Tu check-in";
+  }
+  $("pick").addEventListener("click", function (e) { var b = e.target.closest("[data-w]"); if (b) setWord(S.word === b.dataset.w ? "" : b.dataset.w); });
+  $("ci-cancel").addEventListener("click", resetForm);
+  function find(id) { return S.items.filter(function (n) { return n.id === id; })[0]; }
+  function saveMine() { store("em.mine." + S.code, Object.keys(S.mine)); }
+
+  $("f-ci").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var nick = $("ci-nick").value.trim(), note = $("ci-note").value.trim(), need = $("ci-need").value, ce = $("ci-err");
+    if (!nick) { ce.textContent = "Escribí tu apodo."; $("ci-nick").focus(); return; }
+    if (!S.word) { ce.textContent = "Elegí una palabra del listado."; return; }
+    ce.textContent = ""; store("em.nick", nick);
+    var word = S.word, quad = W[word].quad, body = { nick: nick, word: word, note: note, need: need };
+    if (S.editing) {
+      var id = S.editing, n = find(id), old = n ? { nick: n.nick, word: n.word, quadrant: n.quadrant, note: n.note, need: n.need } : null;
+      if (n) { n.nick = nick; n.word = word; n.quadrant = quad; n.note = note; n.need = need; }
+      resetForm(); renderAll(true);
+      write(function () { return api("PATCH", "/boards/" + S.code + "/checkins/" + id, body); }, function () { if (n && old) { for (var k in old) n[k] = old[k]; } });
+      return;
+    }
+    var tmpId = "tmp" + Date.now();
+    S.items.push({ id: tmpId, nick: nick, word: word, quadrant: quad, note: note, need: need, at: new Date().toISOString() });
+    resetForm(); renderAll(true);
+    write(async function () {
+      var r = await api("POST", "/boards/" + S.code + "/checkins", body);
+      S.items = S.items.map(function (x) { return x.id === tmpId ? r : x; }); S.mine[r.id] = 1; saveMine(); renderAll(true);
+      toast(W[word].w + " quedó en " + Q[quad].name.toLowerCase());
+    }, function () { S.items = S.items.filter(function (x) { return x.id !== tmpId; }); });
+  });
+
+  /* ---------- Render ---------- */
+  function renderAll(force) {
+    if (!S.code) return;
+    var sig = JSON.stringify(S.items) + JSON.stringify(S.mine) + S.armed;
+    if (!force && sig === S.sig) return;
+    S.sig = sig;
+    var items = S.items, n = items.length, c = counts(items);
+    $("b-prog").textContent = n + (n === 1 ? " check-in" : " check-ins");
+    $("stats").innerHTML = ORDER.map(function (id) { return '<div class="stat"><span class="k">' + esc(Q[id].name) + '</span><span class="v">' + c[id] + "</span></div>"; }).join("");
+    $("read").innerHTML = "<h3>Lectura del grupo</h3>" + reading(items).map(function (l) { return "<p>" + esc(l) + "</p>"; }).join("");
+    $("map").innerHTML = ORDER.map(function (id) {
+      var g = {}, q = Q[id]; items.filter(function (x) { return x.quadrant === id; }).forEach(function (x) { (g[x.word] = g[x.word] || []).push(x.nick); });
+      var ks = Object.keys(g).sort(function (a, b) { return g[b].length - g[a].length || a.localeCompare(b); });
+      return '<section class="qcard q-' + id + '" aria-labelledby="mq-' + id + '"><h3 id="mq-' + id + '">' + esc(q.name) + " · " + c[id] + '</h3>' +
+        (ks.length ? '<div class="chips">' + ks.map(function (k) { return '<span class="mw" title="' + esc(g[k].join(", ")) + '">' + esc(k) + (g[k].length > 1 ? "<i>x" + g[k].length + "</i>" : "") + "</span>"; }).join("") + "</div>" : '<p class="empty">Todavía no hay palabras.</p>') + "</section>";
+    }).join("");
+    $("list").innerHTML = n ? items.slice().reverse().map(function (x) {
+      var mine = !!S.mine[x.id] && x.id.indexOf("tmp") !== 0, q = Q[x.quadrant];
+      return '<li class="' + (mine ? "mine" : "") + '" data-id="' + esc(x.id) + '"><div class="top"><span class="who">' + esc(x.nick) + (mine ? " (vos)" : "") + '</span><span class="wrd">' + esc(x.word) + '</span><span class="pill q-' + x.quadrant + '">' + esc(q.name) + "</span></div>" +
+        (x.note ? '<p class="nt2">' + esc(x.note) + "</p>" : "") + (x.need ? '<p class="nd">Necesidad: ' + esc(x.need) + "</p>" : "") +
+        (mine ? '<div class="acts"><button type="button" data-act="edit" data-id="' + esc(x.id) + '">Editar</button><button type="button" class="' + (S.armed === x.id ? "arm" : "") + '" data-act="del" data-id="' + esc(x.id) + '">' + (S.armed === x.id ? "¿Quitar?" : "Quitar") + "</button></div>" : "") + "</li>";
+    }).join("") : '<li class="ex">Todavía no hay check-ins. Sumá el primero arriba.</li>';
+  }
+  $("list").addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]"); if (!el) return;
+    var id = el.dataset.id, n = find(id); if (!n || !S.mine[id]) return;
+    if (el.dataset.act === "edit") {
+      S.editing = id; $("ci-nick").value = n.nick; setWord(n.word); $("ci-note").value = n.note; $("ci-need").value = n.need || "";
+      $("ci-save").textContent = "Guardar cambios"; $("ci-cancel").hidden = false; $("ci-h").textContent = "Editar tu check-in";
+      $("f-ci").scrollIntoView({ block: "start" }); $("ci-note").focus();
+    } else {
+      if (S.armed !== id) { S.armed = id; renderAll(); setTimeout(function () { if (S.armed === id) { S.armed = null; renderAll(); } }, 3000); return; }
+      S.armed = null; var keep = S.items; S.items = S.items.filter(function (x) { return x.id !== id; });
+      if (S.editing === id) resetForm();
+      delete S.mine[id]; saveMine(); renderAll(true);
+      write(function () { return api("DELETE", "/boards/" + S.code + "/checkins/" + id); }, function () { S.items = keep; S.mine[id] = 1; saveMine(); });
+    }
+  });
+
+  $("b-pdf").addEventListener("click", function () {
+    try { saveBlob(pdfEquipo(S.name, S.code, S.items), "checkin-" + slug(S.name) + ".pdf"); toast("Check-in descargado"); }
+    catch (e) { toast("No pude armar el PDF. Probá de nuevo."); }
+  });
+
+  document.addEventListener("click", function (e) { if (e.target.closest("[data-example]")) { e.preventDefault(); go("build"); enter("ACME01"); } });
+  var H0 = location.hash; /* se lee antes de go(), que reescribe el hash a #armar */
+  if (H0 === "#ejemplo") { go("build"); enter("ACME01"); }
+  else if (H0 === "#armar") go("build");
+  else if (/^#[A-Za-z0-9]{6}$/.test(H0)) { go("build"); enter(H0.slice(1).toUpperCase()); }
+})();
+</script>
+</body>
+</html>

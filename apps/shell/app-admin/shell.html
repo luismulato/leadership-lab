@@ -1,0 +1,40 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · Shell</title>
+<base target="_top">
+<style>
+body{font:16px/1.5 system-ui;max-width:34rem;margin:4vh auto;padding:0 16px;color:#1a1a1a;background:#fff}
+.tema{display:flex;align-items:center;justify-content:space-between;border:1px solid #ddd;border-radius:10px;padding:.7rem 1rem;margin:.5rem 0}
+.tema.on{border-color:#2563eb;background:#eff6ff}
+button,input{font:inherit;padding:.4rem .8rem;border-radius:8px;border:1px solid #bbb}
+button{cursor:pointer;background:#1a1a1a;color:#fff;border-color:#1a1a1a} button[disabled]{opacity:.4;cursor:default}
+#msg{min-height:1.5em;color:#b91c1c} #msg.ok{color:#15803d}
+</style></head><body>
+<h1>Shell</h1>
+<p>Tema activo para todos los usuarios.</p>
+<p><input id="clave" type="password" placeholder="Palabra clave" autocomplete="current-password"></p>
+<div id="lista">Cargando…</div>
+<p>El botón <b>Feedback</b> abre el formulario de Tally. Las respuestas se ven en tu cuenta de Tally; la URL del formulario se cambia en <code>config/environments.json</code> (<code>feedback_form_url</code>).</p>
+<p id="msg" role="status" aria-live="polite"></p>
+<p><a href="../" target="_top">← Volver a la app</a></p>
+<script>
+const $=s=>document.querySelector(s), msg=(t,ok)=>{clearInterval(msg.t);const e=$('#msg');e.className=ok?'ok':'';if(!t){e.textContent='';return}
+  let n=10;const pinta=()=>{e.textContent=t+' ('+n+')'};pinta();
+  msg.t=setInterval(()=>{n--;if(n<=0){clearInterval(msg.t);e.textContent=''}else pinta()},1000)};
+async function cargar(){
+  const e=await (await fetch('api/estado',{cache:'no-store'})).json();
+  $('#lista').innerHTML='';
+  e.temas.forEach(t=>{
+    const d=document.createElement('div');d.className='tema'+(t.id===e.activo?' on':'');
+    d.innerHTML='<span><b></b> <small></small></span>';
+    d.querySelector('b').textContent=t.nombre;
+    d.querySelector('small').textContent=t.id===e.activo?'· activo':'';
+    const b=document.createElement('button');b.textContent='Activar';b.disabled=t.id===e.activo;
+    b.onclick=async()=>{
+      const r=await fetch('api/activar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clave:$('#clave').value,tema:t.id})});
+      if(r.ok){msg('Listo: tema "'+t.nombre+'" activo.',true);cargar()}else msg(r.status===403?'Palabra clave incorrecta.':'Error ('+r.status+').');
+    };
+    d.append(b);$('#lista').append(d);
+  });
+}
+cargar();
+</script></body></html>

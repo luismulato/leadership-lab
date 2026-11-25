@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540" font-family="Helvetica, Arial, sans-serif">
+<rect width="960" height="540" fill="#f2f2f2"/>
+<rect width="960" height="86" fill="#4a86e8"/>
+<text x="30" y="58" font-size="36" font-weight="700" fill="#2b2b2b">Listado de emociones</text>
+<line x1="420" y1="14" x2="420" y2="72" stroke="#2b2b2b" stroke-opacity=".5"/>
+<text x="442" y="38" font-size="15" fill="#1b1b1b">Una palabra para cómo llego hoy y la necesidad</text>
+<text x="442" y="58" font-size="15" fill="#1b1b1b">que puede estar detrás, en cuatro cuadrantes</text>
+<text x="442" y="78" font-size="15" fill="#1b1b1b">de energía y agrado.</text>
+<rect x="60" y="112" width="420" height="190" fill="#e4e4e4"/>
+<rect x="480" y="112" width="420" height="190" fill="#ededed"/>
+<rect x="60" y="302" width="420" height="190" fill="#d6d6d6"/>
+<rect x="480" y="302" width="420" height="190" fill="#e0e0e0"/>
+<line x1="480" y1="104" x2="480" y2="500" stroke="#2b2b2b" stroke-width="2"/>
+<line x1="52" y1="302" x2="908" y2="302" stroke="#2b2b2b" stroke-width="2"/>
+<text x="76" y="140" font-size="17" font-weight="700" fill="#333">Alta energía · Desagradable</text>
+<text x="496" y="140" font-size="17" font-weight="700" fill="#333">Alta energía · Agradable</text>
+<text x="76" y="330" font-size="17" font-weight="700" fill="#333">Baja energía · Desagradable</text>
+<text x="496" y="330" font-size="17" font-weight="700" fill="#333">Baja energía · Agradable</text>
+<g font-size="15" fill="#555">
+<text x="76" y="172">Enojado</text><text x="200" y="196">Ansioso</text><text x="96" y="224">Frustrado</text><text x="250" y="256">Tenso</text><text x="330" y="164">Abrumado</text>
+<text x="496" y="172">Entusiasmado</text><text x="660" y="204">Curioso</text><text x="520" y="236">Motivado</text><text x="740" y="256">Alegre</text><text x="760" y="168">Inspirado</text>
+<text x="76" y="362">Cansado</text><text x="220" y="390">Desanimado</text><text x="96" y="424">Triste</text><text x="300" y="446">Aburrido</text><text x="180" y="470">Apagado</text>
+<text x="496" y="362">Tranquilo</text><text x="640" y="394">Sereno</text><text x="520" y="428">Relajado</text><text x="720" y="450">Satisfecho</text><text x="780" y="360">Aliviado</text>
+</g>
+<text x="480" y="526" text-anchor="middle" font-size="12" letter-spacing="3" font-weight="700" fill="#555">DESAGRADABLE  ←  AGRADO  →  AGRADABLE</text>
+<text x="34" y="302" transform="rotate(-90 34 302)" text-anchor="middle" font-size="12" letter-spacing="3" font-weight="700" fill="#555">BAJA  ←  ENERGÍA  →  ALTA</text>
+</svg>

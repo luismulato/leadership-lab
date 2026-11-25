@@ -1,0 +1,22 @@
+{
+  "name": "leadership-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Leadership Lab: team practice apps (Team Canvas, Retro, Delegation Poker, Emotions, OpenSpace) on Cloudflare Pages + D1.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "bash scripts/local.sh up dev",
+    "test": "bash scripts/test.sh",
+    "build": "python3 -I scripts/build.py --env dev",
+    "docs": "node scripts/build-docs.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "marked": "^18.3.0",
+    "wrangler": "^4.162.0"
+  }
+}

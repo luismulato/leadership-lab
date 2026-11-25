@@ -1,0 +1,67 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · Apps del Lab</title>
+<style>
+:root{--bg:#f6f6f4;--fg:#1a1a1a;--mut:#666;--line:#ddd;--card:#fff;--on:#2563eb;--onbg:#eff6ff}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--fg:#ecebe8;--mut:#9a9a9a;--line:#2c2f36;--card:#1c1f25;--on:#6ea0ff;--onbg:#222a3a}}
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font:15px/1.4 system-ui,sans-serif;background:var(--bg);color:var(--fg);display:flex}
+nav{width:240px;flex:none;border-right:1px solid var(--line);background:var(--card);padding:16px 12px;overflow:auto;display:flex;flex-direction:column;gap:4px}
+nav h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 6px 8px}
+nav a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--fg);padding:9px 10px;border-radius:10px;min-height:40px}
+nav a:hover{background:var(--bg)} nav a.on{background:var(--onbg);color:var(--on);font-weight:600}
+nav .sep{height:1px;background:var(--line);margin:8px 6px}
+nav .foot{margin-top:auto;font-size:13px;color:var(--mut)} nav .foot a{padding:6px 10px;min-height:0;color:var(--mut)}
+nav .out{margin-left:auto;font-size:12px;color:var(--mut);text-decoration:none;padding:2px 6px}
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+main .bar{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--card);font-size:13px;color:var(--mut)}
+main .bar a{color:var(--on)}
+iframe{flex:1;width:100%;border:0;background:#fff}
+@media (max-width:700px){
+  body{flex-direction:column}
+  nav{width:auto;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:8px;gap:6px;align-items:center}
+  nav h1,nav .sep,nav .foot{display:none} nav a{white-space:nowrap;flex:none}
+}
+</style></head><body>
+<nav id="nav" aria-label="Admins de las apps"><h1>Admin</h1></nav>
+<main>
+  <div class="bar"><span id="titulo"></span><a id="abrir" target="_blank" rel="noopener">Abrir en pestaña nueva ↗</a></div>
+  <iframe id="marco" title="Admin de la app seleccionada"></iframe>
+</main>
+<script src="../env.js"></script>
+<script src="../assets/apps.js"></script>
+<script>
+/* Admins disponibles: el del shell (por defecto) + uno por cada app "disponible" del catálogo (apps.js).
+   Un solo sitio: cada app vive bajo su ruta (/<id>/) y su admin en /<id>/admin/, en el mismo origen que este admin.
+   Para sumar una app basta con que esté en apps.js. */
+const $ = (s) => document.querySelector(s);
+const AMBIENTE = (window.LL_ENV && window.LL_ENV.name) || "dev";   // injected by scripts/build.py
+function adminDe(a) {
+  return a.url.replace(/\/$/, "") + "/admin/";
+}
+const items = [
+  { id: "shell", nombre: "Shell (esta app)", sub: "Tema activo", url: "shell.html" },
+  ]
+  .concat((window.APPS || []).filter((a) => a.estado === "disponible" && a.url)
+    .map((a) => ({ id: a.id, nombre: a.nombre, sub: "Equipos y códigos", url: adminDe(a), app: true }))
+    .filter((it) => it.url));
+const nav = $("#nav");
+items.forEach((it, i) => {
+  if (it.app && !items[i - 1].app) { const s = document.createElement("div"); s.className = "sep"; nav.append(s); }
+  const a = document.createElement("a");
+  a.href = "#" + it.id; a.textContent = it.nombre; a.dataset.id = it.id; a.title = it.sub;
+  nav.append(a);
+});
+const foot = document.createElement("div"); foot.className = "foot";
+foot.innerHTML = '<a href="../">← Volver a la app</a>'; nav.append(foot);
+function mostrar() {
+  const id = location.hash.slice(1);
+  const it = items.find((x) => x.id === id) || items[0];
+  nav.querySelectorAll("a[data-id]").forEach((a) => a.classList.toggle("on", a.dataset.id === it.id));
+  $("#titulo").textContent = "Admin · " + it.nombre + " · " + AMBIENTE;
+  const url = new URL(it.url, location.href).href;
+  $("#abrir").href = url;
+  if ($("#marco").dataset.url !== url) { $("#marco").dataset.url = url; $("#marco").src = url; }
+}
+addEventListener("hashchange", mostrar); mostrar();
+</script></body></html>

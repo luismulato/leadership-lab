@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Leadership Lab · Documentación</title>
+<meta name="description" content="Documentación técnica de Leadership Lab: stack, arquitectura, ambientes, base de datos, desarrollo, pruebas y despliegue.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="brand" href="index.html">Leadership Lab <span>Documentación</span></a>
+  <button type="button" class="theme-btn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema"></button>
+</header>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Documentación">
+    <div class="search">
+      <input type="search" id="q" placeholder="Buscar en la documentación" aria-label="Buscar en la documentación" autocomplete="off">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+    <ul class="nav"><li><a href="index.html" aria-current="page"><span class="nav-label">Inicio</span><span class="nav-hint">Qué es y cómo arrancar</span></a></li><li><a href="stack-tecnologico.html"><span class="nav-label">Stack tecnológico</span><span class="nav-hint">Qué usa cada capa y cada app</span></a></li><li><a href="arquitectura.html"><span class="nav-label">Arquitectura</span><span class="nav-hint">Cómo encaja todo</span></a></li><li><a href="ambientes.html"><span class="nav-label">Ambientes</span><span class="nav-hint">dev, test y prod</span></a></li><li><a href="base-de-datos.html"><span class="nav-label">Base de datos</span><span class="nav-hint">Una D1, tablas y migraciones</span></a></li><li><a href="desarrollo.html"><span class="nav-label">Desarrollo</span><span class="nav-hint">Requisitos y flujo de trabajo</span></a></li><li><a href="pruebas.html"><span class="nav-label">Pruebas</span><span class="nav-hint">Niveles y cómo correrlos</span></a></li><li><a href="despliegue.html"><span class="nav-label">Despliegue</span><span class="nav-hint">Publicar en Cloudflare</span></a></li></ul>
+    <p class="side-foot">Generado desde los archivos <code>.md</code>.<br>Para cambiarlo, editá el markdown y corré <code>make docs</code>.</p>
+  </nav>
+  <main id="contenido" class="content">
+    <article class="doc">
+<h1 id="leadership-lab">Leadership Lab</h1>
+<p>Apps simples para que los equipos practiquen liderazgo y trabajo en equipo, sin cuentas: se entra con un <strong>código de equipo</strong>. Cinco apps y un menú, en un solo sitio, sobre <strong>Cloudflare Pages + D1</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>App</th>
+<th>Ruta</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Team Canvas</strong></td>
+<td><code>/team-canvas/</code></td>
+<td>Un canvas de 9 secciones para definir quién es el equipo y cómo quiere trabajar</td>
+</tr>
+<tr>
+<td><strong>Retro de Equipo</strong></td>
+<td><code>/retro/</code></td>
+<td>Un ciclo de retro para mirar producto, proceso y equipo, y decidir qué probar</td>
+</tr>
+<tr>
+<td><strong>Delegation Poker</strong></td>
+<td><code>/delegation/</code></td>
+<td>Acordar hasta dónde puede decidir el equipo en cada decisión</td>
+</tr>
+<tr>
+<td><strong>Listado de Emociones</strong></td>
+<td><code>/emociones/</code></td>
+<td>Ponerle nombre a lo que se siente y a lo que se necesita</td>
+</tr>
+<tr>
+<td><strong>OpenSpace / Mercado de temas</strong></td>
+<td><code>/openspace/</code></td>
+<td>Armar entre todos una agenda de sesiones, sin agenda previa</td>
+</tr>
+</tbody></table></div>
+<p><strong>Repositorio:</strong> <a href="https://github.com/luismulato/leadership-lab" target="_blank" rel="noopener">https://github.com/luismulato/leadership-lab</a></p>
+<p>Cada app trae un ejemplo de solo lectura con el código <code>ACME01</code> y su propio admin en <code>/&lt;app&gt;/admin/</code>.</p>
+<h2 id="arranque-rapido">Arranque rápido<a class="anchor" href="#arranque-rapido" aria-label="Enlace a esta sección">#</a></h2>
+<p>Necesitás <strong>Node.js 20+</strong>, <strong>Python 3</strong> y <strong>Make</strong>.</p>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code>git clone https://github.com/luismulato/leadership-lab.git
+cd leadership-lab
+make dev
+</code></pre></div>
+<p>Abrí <a href="http://localhost:8090/" target="_blank" rel="noopener">http://localhost:8090/</a>. El admin del sitio está en <code>/app-admin/</code> (clave de desarrollo: <code>dev-admin-key</code>).</p>
+<p><code>make dev</code> instala las dependencias la primera vez, migra la base local y levanta el sitio. Para bajarlo: <code>make down</code>. Todos los comandos: <code>make help</code>.</p>
+<h2 id="tres-ambientes">Tres ambientes<a class="anchor" href="#tres-ambientes" aria-label="Enlace a esta sección">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ambiente</th>
+<th>Dónde</th>
+<th>URL</th>
+<th>Comando</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>dev</code> — desarrollo</td>
+<td>local</td>
+<td><a href="http://localhost:8090/" target="_blank" rel="noopener">http://localhost:8090/</a></td>
+<td><code>make dev</code></td>
+</tr>
+<tr>
+<td><code>test</code> — pruebas</td>
+<td>local (base vacía en cada arranque)</td>
+<td><a href="http://localhost:8190/" target="_blank" rel="noopener">http://localhost:8190/</a></td>
+<td><code>make test</code> / <code>make up ENV=test</code></td>
+</tr>
+<tr>
+<td><code>prod</code> — producción</td>
+<td>Cloudflare</td>
+<td><a href="https://leadership-lab.pages.dev/" target="_blank" rel="noopener">https://leadership-lab.pages.dev/</a></td>
+<td><code>make deploy ENV=prod</code></td>
+</tr>
+</tbody></table></div>
+<p>El mismo código corre en los tres; lo que cambia se define en <span class="repo-file" title="Archivo del repositorio: config/environments.json"><code>config/environments.json</code></span>. Detalle en <a href="ambientes.html">docs/ambientes.md</a>.</p>
+<h2 id="pruebas">Pruebas<a class="anchor" href="#pruebas" aria-label="Enlace a esta sección">#</a></h2>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code>make test        # toda la suite: estructura, esquema, API de las 5 apps y pantalla
+</code></pre></div>
+<h2 id="documentacion">Documentación<a class="anchor" href="#documentacion" aria-label="Enlace a esta sección">#</a></h2>
+<p>Toda en español, en <span class="repo-file" title="Archivo del repositorio: docs/"><code>docs/</code></span>. Hay una <strong>versión web amigable</strong> (menú, buscador, modo oscuro): abrí <code>docs/html/index.html</code> en el navegador, sin servidor. Se regenera con <code>make docs</code>.</p>
+<p>Páginas:</p>
+<ul>
+<li><a href="stack-tecnologico.html">Stack tecnológico</a>: qué usa cada capa y cada app, con versiones</li>
+<li><a href="arquitectura.html">Arquitectura</a>: cómo encaja todo y cómo se arma el sitio</li>
+<li><a href="ambientes.html">Ambientes</a>: dev, test y prod; cómo pasar pruebas a Cloudflare</li>
+<li><a href="base-de-datos.html">Base de datos</a>: una sola D1, tablas y migraciones</li>
+<li><a href="desarrollo.html">Desarrollo</a>: requisitos, flujo de trabajo, cómo agregar una app</li>
+<li><a href="pruebas.html">Pruebas</a>: niveles de prueba y cómo correrlos</li>
+<li><a href="despliegue.html">Despliegue</a>: publicar en Cloudflare</li>
+</ul>
+<h2 id="estructura">Estructura<a class="anchor" href="#estructura" aria-label="Enlace a esta sección">#</a></h2>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><pre><code>apps/        shell (menú) y las 5 apps
+packages/    código compartido (canvas-base)
+db/          migraciones de la base única
+config/      definición de los ambientes
+scripts/     armado, local, pruebas, despliegue
+tests/ e2e/  pruebas
+docs/        documentación (español)
+mng/         tablero kanban del proyecto
+</code></pre></div>
+<h2 id="contribuir">Contribuir<a class="anchor" href="#contribuir" aria-label="Enlace a esta sección">#</a></h2>
+<p>Leé <span class="repo-file" title="Archivo del repositorio: CONTRIBUTING.md">CONTRIBUTING.md</span> y el <span class="repo-file" title="Archivo del repositorio: CODE_OF_CONDUCT.md">código de conducta</span>. Para reportar un problema de seguridad, ver <span class="repo-file" title="Archivo del repositorio: SECURITY.md">SECURITY.md</span>.</p>
+<h2 id="licencia">Licencia<a class="anchor" href="#licencia" aria-label="Enlace a esta sección">#</a></h2>
+<p>Código bajo licencia <span class="repo-file" title="Archivo del repositorio: LICENSE">MIT</span>. Parte del contenido (logos, audios, imágenes) es de terceros: ver <span class="repo-file" title="Archivo del repositorio: NOTICE.md">NOTICE.md</span>.</p>
+
+    </article>
+    <nav class="pager" aria-label="Páginas"><span></span><a class="next" href="stack-tecnologico.html"><small>Siguiente</small>Stack tecnológico</a></nav>
+    <footer class="credit">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></footer>
+  </main>
+  <aside class="toc" aria-label="En esta página"><p>En esta página</p><ul><li class="l2"><a href="#arranque-rapido">Arranque rápido</a></li><li class="l2"><a href="#tres-ambientes">Tres ambientes</a></li><li class="l2"><a href="#pruebas">Pruebas</a></li><li class="l2"><a href="#documentacion">Documentación</a></li><li class="l2"><a href="#estructura">Estructura</a></li><li class="l2"><a href="#contribuir">Contribuir</a></li><li class="l2"><a href="#licencia">Licencia</a></li></ul></aside>
+</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/docs.js"></script>
+
+</body>
+</html>

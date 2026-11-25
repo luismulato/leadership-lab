@@ -1,0 +1,289 @@
+{
+ "quadrants": [
+  {
+   "id": "ad",
+   "name": "Alta energía · Desagradable",
+   "energy": "Alta energía",
+   "pleasant": "Desagradable",
+   "words": [
+    {
+     "w": "Enojado",
+     "d": "Algo importante fue cruzado: un límite, un valor o la justicia.",
+     "q": "¿Qué límite o valor siento que se cruzó?"
+    },
+    {
+     "w": "Ansioso",
+     "d": "Inquietud ante algo que todavía no pasó.",
+     "q": "¿Qué necesito saber o asegurar para sentirme más firme?"
+    },
+    {
+     "w": "Frustrado",
+     "d": "Quiero algo y no encuentro el camino.",
+     "q": "¿Qué necesidad no encuentra camino hoy?"
+    },
+    {
+     "w": "Tenso",
+     "d": "El cuerpo en guardia, con poco margen.",
+     "q": "¿Qué necesito para bajar un poco la guardia?"
+    },
+    {
+     "w": "Preocupado",
+     "d": "Le doy vueltas a algo que me importa y sigue abierto.",
+     "q": "¿Qué es lo que me importa y siento en riesgo?"
+    },
+    {
+     "w": "Irritado",
+     "d": "Poca paciencia; todo roza.",
+     "q": "¿Qué necesidad venía desatendida antes de esto?"
+    },
+    {
+     "w": "Abrumado",
+     "d": "Más cosas de las que puedo sostener a la vez.",
+     "q": "¿Qué necesito soltar, ordenar o pedir?"
+    },
+    {
+     "w": "Inquieto",
+     "d": "Cuesta quedarse quieto; algo pide movimiento.",
+     "q": "¿Qué necesito aclarar para aquietarme?"
+    },
+    {
+     "w": "Asustado",
+     "d": "Siento una amenaza, real o imaginada.",
+     "q": "¿Qué necesito para sentirme seguro?"
+    },
+    {
+     "w": "Molesto",
+     "d": "Algo me incomoda y quiero que cambie.",
+     "q": "¿Qué necesito que sea distinto?"
+    },
+    {
+     "w": "Impaciente",
+     "d": "Quiero que las cosas avancen más rápido.",
+     "q": "¿Qué necesito ver avanzar, y por qué ahora?"
+    },
+    {
+     "w": "Agobiado",
+     "d": "El peso se acumula y no veo salida.",
+     "q": "¿Qué apoyo o descanso necesito?"
+    }
+   ]
+  },
+  {
+   "id": "aa",
+   "name": "Alta energía · Agradable",
+   "energy": "Alta energía",
+   "pleasant": "Agradable",
+   "words": [
+    {
+     "w": "Entusiasmado",
+     "d": "Ganas de empezar, con energía de sobra.",
+     "q": "¿Qué necesidad se está cuidando y cómo la comparto?"
+    },
+    {
+     "w": "Curioso",
+     "d": "Quiero explorar y entender más.",
+     "q": "¿Qué quiero aprender o descubrir?"
+    },
+    {
+     "w": "Motivado",
+     "d": "Veo un camino y quiero recorrerlo.",
+     "q": "¿Qué es lo que le da sentido a esto?"
+    },
+    {
+     "w": "Alegre",
+     "d": "Me siento liviano y con ganas de compartir.",
+     "q": "¿Qué se cuidó hoy que quiero celebrar?"
+    },
+    {
+     "w": "Inspirado",
+     "d": "Una idea me mueve y quiero llevarla a la práctica.",
+     "q": "¿Qué quiero crear con otros?"
+    },
+    {
+     "w": "Optimista",
+     "d": "Confío en que las cosas pueden salir bien.",
+     "q": "¿Qué me da esta confianza y cómo la sostengo?"
+    },
+    {
+     "w": "Orgulloso",
+     "d": "Reconozco el valor de lo que hice.",
+     "q": "¿Qué reconocimiento puedo darme o dar?"
+    },
+    {
+     "w": "Agradecido",
+     "d": "Valoro lo que recibí de alguien o de algo.",
+     "q": "¿A quién me gustaría decírselo?"
+    },
+    {
+     "w": "Esperanzado",
+     "d": "Veo una posibilidad abierta.",
+     "q": "¿Qué primer paso pequeño me acerca?"
+    },
+    {
+     "w": "Enérgico",
+     "d": "Tengo fuerza para actuar.",
+     "q": "¿En qué quiero usar esta energía?"
+    },
+    {
+     "w": "Confiado",
+     "d": "Siento firmeza en mis recursos y en mi equipo.",
+     "q": "¿Qué hace posible esta confianza?"
+    },
+    {
+     "w": "Emocionado",
+     "d": "Algo me conmovió o me mueve por dentro.",
+     "q": "¿Qué es lo que me importa de esto?"
+    }
+   ]
+  },
+  {
+   "id": "bd",
+   "name": "Baja energía · Desagradable",
+   "energy": "Baja energía",
+   "pleasant": "Desagradable",
+   "words": [
+    {
+     "w": "Cansado",
+     "d": "El cuerpo o la mente piden una pausa.",
+     "q": "¿Qué descanso necesito, en concreto?"
+    },
+    {
+     "w": "Desanimado",
+     "d": "Las ganas bajaron.",
+     "q": "¿Qué perdí de vista que me daba sentido?"
+    },
+    {
+     "w": "Triste",
+     "d": "Algo que valoro se perdió o se aleja.",
+     "q": "¿Qué extraño o qué necesito despedir?"
+    },
+    {
+     "w": "Aburrido",
+     "d": "Nada me mueve en este momento.",
+     "q": "¿Qué me haría sentir que contribuyo o aprendo?"
+    },
+    {
+     "w": "Apagado",
+     "d": "Sobrecarga, o falta de sentido o de seguridad.",
+     "q": "¿Qué me falta: descanso, sentido o seguridad?"
+    },
+    {
+     "w": "Desmotivado",
+     "d": "No encuentro para qué hacerlo.",
+     "q": "¿Para qué me importaría esto?"
+    },
+    {
+     "w": "Solo",
+     "d": "Siento distancia con los demás.",
+     "q": "¿Con quién necesito conectar?"
+    },
+    {
+     "w": "Decepcionado",
+     "d": "Esperaba otra cosa.",
+     "q": "¿Qué esperaba y qué necesidad había detrás?"
+    },
+    {
+     "w": "Culpable",
+     "d": "Hice algo que choca con un valor mío.",
+     "q": "¿Qué valor quiero reparar, y cómo?"
+    },
+    {
+     "w": "Avergonzado",
+     "d": "Temo perder mi lugar o que no me acepten.",
+     "q": "¿Qué necesito para sentir que pertenezco?"
+    },
+    {
+     "w": "Resignado",
+     "d": "Dejé de intentar porque creo que no cambia.",
+     "q": "¿Qué necesidad dejé de pedir?"
+    },
+    {
+     "w": "Indiferente",
+     "d": "Me cuesta sentir algo.",
+     "q": "¿Qué necesito para volver a conectar conmigo?"
+    }
+   ]
+  },
+  {
+   "id": "ba",
+   "name": "Baja energía · Agradable",
+   "energy": "Baja energía",
+   "pleasant": "Agradable",
+   "words": [
+    {
+     "w": "Tranquilo",
+     "d": "Sin urgencia; todo en su lugar.",
+     "q": "¿Qué está cuidado hoy?"
+    },
+    {
+     "w": "Sereno",
+     "d": "Calma profunda y mirada amplia.",
+     "q": "¿Qué me ayuda a llegar a este estado?"
+    },
+    {
+     "w": "Relajado",
+     "d": "El cuerpo suelto.",
+     "q": "¿Qué hice que me permitió soltar?"
+    },
+    {
+     "w": "Satisfecho",
+     "d": "Lo que necesitaba está cubierto.",
+     "q": "¿Qué necesidad se cuidó?"
+    },
+    {
+     "w": "Aliviado",
+     "d": "Se fue un peso.",
+     "q": "¿Qué se resolvió que me importaba?"
+    },
+    {
+     "w": "En paz",
+     "d": "Estoy de acuerdo conmigo y con lo que pasa.",
+     "q": "¿Qué hace posible esta paz?"
+    },
+    {
+     "w": "Contento",
+     "d": "Estoy bien con lo que tengo.",
+     "q": "¿Qué de lo que tengo quiero cuidar?"
+    },
+    {
+     "w": "Cómodo",
+     "d": "Me siento a gusto en este lugar.",
+     "q": "¿Qué hace que acá me sienta seguro?"
+    },
+    {
+     "w": "Pleno",
+     "d": "Siento que estoy donde quiero estar.",
+     "q": "¿Qué sentido tiene esto para mí?"
+    },
+    {
+     "w": "Descansado",
+     "d": "Recuperé energía.",
+     "q": "¿Qué descanso me sirvió?"
+    },
+    {
+     "w": "Conforme",
+     "d": "Lo que hay me alcanza por ahora.",
+     "q": "¿Qué es suficiente hoy?"
+    },
+    {
+     "w": "Presente",
+     "d": "Atento a lo que pasa acá y ahora.",
+     "q": "¿Qué me ayuda a estar presente?"
+    }
+   ]
+  }
+ ],
+ "needs": [
+  "conexión",
+  "reconocimiento",
+  "autonomía",
+  "seguridad",
+  "claridad",
+  "respeto",
+  "contribución",
+  "aprendizaje",
+  "descanso",
+  "pertenencia",
+  "sentido"
+ ]
+}

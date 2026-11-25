@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Stack tecnológico · Leadership Lab</title>
+<meta name="description" content="Documentación técnica de Leadership Lab: stack, arquitectura, ambientes, base de datos, desarrollo, pruebas y despliegue.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="brand" href="index.html">Leadership Lab <span>Documentación</span></a>
+  <button type="button" class="theme-btn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema"></button>
+</header>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Documentación">
+    <div class="search">
+      <input type="search" id="q" placeholder="Buscar en la documentación" aria-label="Buscar en la documentación" autocomplete="off">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+    <ul class="nav"><li><a href="index.html"><span class="nav-label">Inicio</span><span class="nav-hint">Qué es y cómo arrancar</span></a></li><li><a href="stack-tecnologico.html" aria-current="page"><span class="nav-label">Stack tecnológico</span><span class="nav-hint">Qué usa cada capa y cada app</span></a></li><li><a href="arquitectura.html"><span class="nav-label">Arquitectura</span><span class="nav-hint">Cómo encaja todo</span></a></li><li><a href="ambientes.html"><span class="nav-label">Ambientes</span><span class="nav-hint">dev, test y prod</span></a></li><li><a href="base-de-datos.html"><span class="nav-label">Base de datos</span><span class="nav-hint">Una D1, tablas y migraciones</span></a></li><li><a href="desarrollo.html"><span class="nav-label">Desarrollo</span><span class="nav-hint">Requisitos y flujo de trabajo</span></a></li><li><a href="pruebas.html"><span class="nav-label">Pruebas</span><span class="nav-hint">Niveles y cómo correrlos</span></a></li><li><a href="despliegue.html"><span class="nav-label">Despliegue</span><span class="nav-hint">Publicar en Cloudflare</span></a></li></ul>
+    <p class="side-foot">Generado desde los archivos <code>.md</code>.<br>Para cambiarlo, editá el markdown y corré <code>make docs</code>.</p>
+  </nav>
+  <main id="contenido" class="content">
+    <article class="doc">
+<h1 id="stack-tecnologico">Stack tecnológico</h1>
+<p>Resumen del stack real de Leadership Lab. Las versiones son las que usa el proyecto hoy (verificadas el 2026-11-24).</p>
+<h2 id="vision-general">Visión general<a class="anchor" href="#vision-general" aria-label="Enlace a esta sección">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+<th>Versión</th>
+<th>Dónde se usa</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Plataforma</td>
+<td>Cloudflare Pages</td>
+<td>—</td>
+<td>Hosting del sitio y de las funciones, en los ambientes <code>prod</code> (y <code>test</code> si se pasa a Cloudflare)</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Cloudflare Pages Functions (JavaScript, módulos ES, runtime <code>workerd</code>)</td>
+<td><code>compatibility_date</code> 2026-10-01</td>
+<td>Una API por app en <code>functions/&lt;app&gt;/api/[[path]].js</code></td>
+</tr>
+<tr>
+<td>Base de datos</td>
+<td>Cloudflare D1 (SQLite)</td>
+<td>—</td>
+<td><strong>Una sola base</strong> compartida por las 5 apps</td>
+</tr>
+<tr>
+<td>Almacenamiento clave-valor</td>
+<td>Cloudflare KV</td>
+<td>—</td>
+<td>Solo el shell: tema activo (<code>activo</code>)</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>HTML, CSS y JavaScript puros, <strong>sin framework ni paso de empaquetado</strong></td>
+<td>ES2020+</td>
+<td>Cada app es una página (<code>index.html</code>)</td>
+</tr>
+<tr>
+<td>CLI de desarrollo</td>
+<td>Wrangler</td>
+<td>4.168.0 (<code>^4.162.0</code>)</td>
+<td><code>pages dev</code> en local, <code>d1</code>, <code>kv</code> y <code>pages deploy</code></td>
+</tr>
+<tr>
+<td>Herramientas de armado</td>
+<td>Python 3</td>
+<td>3.9+ (probado con 3.9.6)</td>
+<td><code>scripts/build.py</code> y los <code>build.py</code> de cada app</td>
+</tr>
+<tr>
+<td>Pruebas de API y esquema</td>
+<td><code>node:test</code> (Node) + CLI <code>sqlite3</code></td>
+<td>Node ≥ 20</td>
+<td><code>apps/*/tests</code>, <code>db/tests</code>, <code>tests/site</code></td>
+</tr>
+<tr>
+<td>Pruebas de pantalla</td>
+<td>Playwright con Google Chrome instalado</td>
+<td><code>^1.64.1</code></td>
+<td><code>e2e/</code></td>
+</tr>
+<tr>
+<td>Documentación web</td>
+<td><code>marked</code> (markdown a HTML, solo en desarrollo)</td>
+<td><code>^18.3.0</code></td>
+<td><code>scripts/build-docs.mjs</code> genera <code>docs/html/</code></td>
+</tr>
+<tr>
+<td>Integración continua</td>
+<td>GitHub Actions</td>
+<td>—</td>
+<td><code>.github/workflows/ci.yml</code></td>
+</tr>
+<tr>
+<td>Automatización</td>
+<td>GNU Make + scripts Bash</td>
+<td>—</td>
+<td><code>Makefile</code>, <code>scripts/*.sh</code></td>
+</tr>
+</tbody></table></div>
+<h2 id="dependencias-externas-en-tiempo-de-ejecucion-cdn">Dependencias externas en tiempo de ejecución (CDN)<a class="anchor" href="#dependencias-externas-en-tiempo-de-ejecucion-cdn" aria-label="Enlace a esta sección">#</a></h2>
+<p>No se redistribuyen: el navegador las pide al abrir la página.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Recurso</th>
+<th>Para qué</th>
+<th>Apps</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Google Fonts: Gloock, Public Sans, DM Mono (y Barlow Condensed en Delegation)</td>
+<td>Tipografías</td>
+<td>todas</td>
+</tr>
+<tr>
+<td>jsPDF 2.5.1 (cdnjs)</td>
+<td>Exportar el canvas a PDF</td>
+<td>Team Canvas, Retro, Emociones</td>
+</tr>
+<tr>
+<td>Tally (<code>tally.so/widgets/embed.js</code> y el formulario embebido)</td>
+<td>Formulario de feedback del botón lateral; solo se carga cuando alguien abre el panel</td>
+<td>Shell (todas las apps)</td>
+</tr>
+<tr>
+<td>Mermaid 11.4.1 (jsDelivr)</td>
+<td>Dibujar los diagramas de la documentación web</td>
+<td><code>docs/html/</code> (si no hay internet, se ve el código del diagrama)</td>
+</tr>
+</tbody></table></div>
+<h2 id="por-app">Por app<a class="anchor" href="#por-app" aria-label="Enlace a esta sección">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>App</th>
+<th>Ruta</th>
+<th>API</th>
+<th>Tablas</th>
+<th>Particularidades</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Team Canvas</strong></td>
+<td><code>/team-canvas/</code></td>
+<td><code>/team-canvas/api/canvases…</code></td>
+<td><code>canvases</code>, <code>notes</code></td>
+<td>Canvas de 9 secciones con notas compartidas; audios y PDF del taller; exporta a PDF</td>
+</tr>
+<tr>
+<td><strong>Retro de Equipo</strong></td>
+<td><code>/retro/</code></td>
+<td><code>/retro/api/retros…</code></td>
+<td><code>retros</code>, <code>items</code></td>
+<td>Ciclo de 4 fases, 3 miradas (producto, proceso, equipo), votos; exporta a PDF</td>
+</tr>
+<tr>
+<td><strong>Delegation Poker</strong></td>
+<td><code>/delegation/</code></td>
+<td><code>/delegation/api/orgs…</code></td>
+<td><code>orgs</code>, <code>decisions</code></td>
+<td>Decisiones guardadas como JSON; fuente propia en <code>src/index.src.html</code></td>
+</tr>
+<tr>
+<td><strong>Listado de Emociones</strong></td>
+<td><code>/emociones/</code></td>
+<td><code>/emociones/api/boards…</code></td>
+<td><code>emo_boards</code>, <code>emo_checkins</code></td>
+<td>Palabras y necesidades en <code>functions/words.json</code> (se importa en la función); exporta a PDF</td>
+</tr>
+<tr>
+<td><strong>OpenSpace / Mercado de temas</strong></td>
+<td><code>/openspace/</code></td>
+<td><code>/openspace/api/eventos…</code></td>
+<td><code>eventos</code>, <code>sesiones</code></td>
+<td>Token secreto por sesión para moverla y registrarla; sin PDF</td>
+</tr>
+<tr>
+<td><strong>Shell</strong></td>
+<td><code>/</code></td>
+<td><code>/app-admin/api/*</code></td>
+<td>— (usa KV)</td>
+<td>Menú lateral y apps embebidas en <code>iframe</code>; temas (<code>default</code>, <code>leadership-lab</code>); admin del sitio en <code>/app-admin/</code></td>
+</tr>
+</tbody></table></div>
+<p>Cada app trae además su <strong>admin</strong> en <code>/&lt;app&gt;/admin/</code> (listar y borrar equipos con la clave de administrador) y un <strong>ejemplo de solo lectura</strong> con el código <code>ACME01</code>.</p>
+<h2 id="como-se-genera-cada-pagina">Cómo se genera cada página<a class="anchor" href="#como-se-genera-cada-pagina" aria-label="Enlace a esta sección">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>App</th>
+<th>Fuente que se edita</th>
+<th>Se genera</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Team Canvas</td>
+<td><code>packages/canvas-base/team-canvas.html</code> + <code>apps/team-canvas/build.py</code></td>
+<td><code>apps/team-canvas/public/index.html</code></td>
+</tr>
+<tr>
+<td>Retro, Emociones, OpenSpace</td>
+<td><code>apps/&lt;app&gt;/index.src.html</code> + <code>build.py</code> (sobre <code>packages/canvas-base</code>)</td>
+<td><code>apps/&lt;app&gt;/public/index.html</code></td>
+</tr>
+<tr>
+<td>Delegation</td>
+<td><code>apps/delegation/src/index.src.html</code> + <code>build.py</code></td>
+<td><code>apps/delegation/public/index.html</code></td>
+</tr>
+<tr>
+<td>Shell</td>
+<td>directo, sin paso de generación</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+<p>Los <code>public/index.html</code> generados están versionados para poder revisar los cambios en los pull requests, pero <strong>se editan las fuentes</strong>, nunca el generado: <code>scripts/build.py</code> los regenera en cada armado (por eso hace falta Python).</p>
+<h2 id="seguridad-y-limites">Seguridad y límites<a class="anchor" href="#seguridad-y-limites" aria-label="Enlace a esta sección">#</a></h2>
+<ul>
+<li>Sin cuentas: el <strong>código de 6 caracteres</strong> del tablero es la llave. El admin se protege con el secreto <code>APP_ADMIN_CLAVE</code>, que se compara en tiempo constante.</li>
+<li>Topes por app (por ejemplo 40 tableros nuevos por hora, 600 notas por canvas, 500 decisiones por organización, 300 sesiones por evento) para frenar abuso.</li>
+<li>El ejemplo <code>ACME01</code> es de solo lectura y no se puede borrar ni editar.</li>
+</ul>
+
+    </article>
+    <nav class="pager" aria-label="Páginas"><a class="prev" href="index.html"><small>Anterior</small>Inicio</a><a class="next" href="arquitectura.html"><small>Siguiente</small>Arquitectura</a></nav>
+    <footer class="credit">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></footer>
+  </main>
+  <aside class="toc" aria-label="En esta página"><p>En esta página</p><ul><li class="l2"><a href="#vision-general">Visión general</a></li><li class="l2"><a href="#dependencias-externas-en-tiempo-de-ejecucion-cdn">Dependencias externas en tiempo de ejecución (CDN)</a></li><li class="l2"><a href="#por-app">Por app</a></li><li class="l2"><a href="#como-se-genera-cada-pagina">Cómo se genera cada página</a></li><li class="l2"><a href="#seguridad-y-limites">Seguridad y límites</a></li></ul></aside>
+</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/docs.js"></script>
+
+</body>
+</html>

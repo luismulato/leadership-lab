@@ -1,0 +1,1209 @@
+<title>Canvas de Equipos que Enamoran</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* Layout: portada tipográfica sobre niebla, luego riel de navegación fijo a la izquierda y columna de lectura a 65ch. */
+:root {
+  --bg: #EEF0F4;          /* niebla fría */
+  --fog: #DDE2EA;
+  --surface: #F8F9FB;
+  --ink: #1B2230;
+  --ink-2: #5A6475;
+  --rule: #C9CFDA;
+  --accent: #B3264B;      /* frambuesa */
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E6E9F0;
+  --focus: #1B2230;
+  --hero-img-op: .22;
+  --f-display: "Gloock", "Iowan Old Style", Georgia, serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12151D; --fog: #1C2230; --surface: #181C26; --ink: #E8EAF0; --ink-2: #9AA3B5;
+    --rule: #2D3446; --accent: #F0809D; --accent-ink: #1A0A10; --accent-soft: #1E2433; --focus: #E8EAF0; --hero-img-op: .28;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12151D; --fog: #1C2230; --surface: #181C26; --ink: #E8EAF0; --ink-2: #9AA3B5;
+  --rule: #2D3446; --accent: #F0809D; --accent-ink: #1A0A10; --accent-soft: #1E2433; --focus: #E8EAF0; --hero-img-op: .28;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 17px; line-height: 1.7;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+.wrap { max-width: 1120px; margin-inline: auto; }
+
+/* Portada */
+.hero {
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding-inline: max(16px, env(safe-area-inset-left, 0px));
+  background: linear-gradient(180deg, var(--fog) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--rule);
+  position: relative; isolation: isolate; overflow: hidden;
+}
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: url("/_blob/4668ef65b915728d2d2a7a9d8be07bfe") center / cover no-repeat;
+  filter: blur(5px); transform: scale(1.06); opacity: var(--hero-img-op);
+  -webkit-mask-image: linear-gradient(180deg, var(--ink) 35%, transparent 100%);
+  mask-image: linear-gradient(180deg, var(--ink) 35%, transparent 100%);
+}
+.hero .wrap { position: relative; z-index: 1; padding-block: clamp(36px, 7vw, 88px) clamp(28px, 4vw, 48px); display: grid; gap: 28px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); margin: 0; }
+h1 {
+  font-family: var(--f-display); font-weight: 400; margin: 0;
+  font-size: clamp(2.6rem, 8.5vw, 6.2rem); line-height: .98; letter-spacing: -.01em;
+  text-wrap: balance; max-width: 14ch;
+}
+h1 em { font-style: normal; color: var(--accent); }
+.sub { font-size: clamp(1.1rem, 2.2vw, 1.4rem); line-height: 1.45; max-width: 34ch; color: var(--ink-2); margin: 0; text-wrap: balance; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; padding: 0; list-style: none; font-family: var(--f-mono); font-size: 13px; color: var(--ink-2); }
+.facts b { color: var(--ink); font-weight: 500; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn {
+  appearance: none; font: 600 15px/1 var(--f-body); cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 10px; padding: 14px 20px; border-radius: 4px;
+  border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
+  transition: background-color .15s, color .15s, border-color .15s;
+}
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn:hover { background: var(--ink); color: var(--bg); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.btn[disabled] { opacity: .6; cursor: progress; }
+.link { font-size: 15px; font-weight: 500; }
+.status { min-height: 1.5em; margin: 0; font-size: 14px; color: var(--ink-2); }
+.status.err { color: var(--accent); }
+
+
+/* Podcast */
+.pod { margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding-inline: max(16px, env(safe-area-inset-left, 0px)); background: var(--surface); border-bottom: 1px solid var(--rule); }
+.pod .wrap { padding-block: 36px 40px; display: grid; gap: 28px; }
+@media (min-width: 860px) { .pod .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 56px; align-items: start; } }
+.pod h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(1.7rem, 3.6vw, 2.3rem); line-height: 1.1; margin: 10px 0 10px; text-wrap: balance; }
+.pod .lead { margin: 0 0 22px; color: var(--ink-2); max-width: 40ch; font-size: 16px; line-height: 1.55; }
+.now { font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 4px; }
+.now-t { font-weight: 600; font-size: 17px; line-height: 1.35; margin: 0 0 16px; min-height: 2.7em; }
+.ctl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ctl button { appearance: none; cursor: pointer; font: 500 13px/1 var(--f-mono); color: var(--ink); background: transparent; border: 1.5px solid var(--rule); border-radius: 999px; height: 40px; padding: 0 14px; }
+.ctl button:hover { border-color: var(--ink); }
+.ctl button[disabled] { opacity: .45; cursor: not-allowed; }
+.ctl .play { width: 56px; height: 56px; padding: 0; display: grid; place-items: center; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.ctl .play:hover { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.ctl .play svg { width: 22px; height: 22px; }
+.scrub { display: grid; grid-template-columns: 3.4em 1fr 3.4em; gap: 10px; align-items: center; margin-top: 18px; font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.scrub span:last-child { text-align: right; }
+input[type=range] { width: 100%; accent-color: var(--accent); height: 28px; margin: 0; }
+.pod-note { margin: 16px 0 0; font-size: 13px; color: var(--ink-2); }
+.eps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.eps li { border-bottom: 1px solid var(--rule); }
+.ep { appearance: none; width: 100%; text-align: left; cursor: pointer; font: inherit; color: var(--ink); background: transparent; border: 0; padding: 14px 6px; display: grid; grid-template-columns: 2em 1fr auto; gap: 10px; align-items: baseline; }
+.ep:hover { background: var(--accent-soft); }
+.ep .n { font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); }
+.ep .t { font-size: 16px; line-height: 1.35; }
+.ep .d { font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.ep[aria-current="true"] .t { color: var(--accent); font-weight: 600; }
+.ep[aria-current="true"] .n { color: var(--accent); }
+
+/* Cuerpo */
+.layout { display: grid; grid-template-columns: 1fr; gap: 24px; padding-block: 32px 80px; }
+.rail details { border-top: 1px solid var(--rule); padding-block: 14px; }
+.rail summary { font-family: var(--f-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); cursor: pointer; }
+.rail ol, .rail ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 2px; }
+.rail a { display: block; padding: 5px 0; color: var(--ink); text-decoration: none; font-size: 15px; line-height: 1.35; }
+.rail a:hover { color: var(--accent); }
+.rail a.on { color: var(--accent); font-weight: 600; }
+.rail ol { counter-reset: s; }
+.rail ol a { display: grid; grid-template-columns: 2.2em 1fr; }
+.rail ol a::before { counter-increment: s; content: counter(s); font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); padding-top: 2px; }
+
+@media (min-width: 960px) {
+  .layout { grid-template-columns: 250px minmax(0, 1fr); gap: 72px; }
+  .rail { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); align-self: start; max-height: calc(100vh - 48px); overflow: auto; }
+}
+
+article { max-width: 66ch; }
+article p { margin: 0 0 1.15em; }
+article h2 {
+  font-family: var(--f-display); font-weight: 400; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.1;
+  margin: 2.4em 0 .8em; text-wrap: balance; scroll-margin-top: 24px;
+}
+article h2::before { content: ""; display: block; width: 44px; height: 3px; background: var(--accent); margin-bottom: 18px; }
+article > p:first-child { font-size: 1.2em; line-height: 1.6; }
+article ul { margin: 0 0 1.3em; padding-left: 1.25em; display: grid; gap: .55em; }
+article li::marker { color: var(--accent); }
+article strong { font-weight: 600; }
+article p[id], article h2[id], article h3[id] { scroll-margin-top: 24px; }
+article h3.sec-h {
+  font-family: var(--f-display); font-weight: 400; font-size: clamp(1.35rem, 2.6vw, 1.6rem); line-height: 1.15;
+  color: var(--ink); margin: 2.2em 0 .6em; text-wrap: balance; scroll-margin-top: 24px;
+  padding-top: 1em; border-top: 1px solid var(--rule);
+}
+article h3.sec-h::before {
+  content: "Sección del canvas"; display: block; margin-bottom: 8px;
+  font-family: var(--f-mono, ui-monospace, "SF Mono", Menlo, monospace); font-size: .68rem; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--accent); line-height: 1.2;
+}
+.ej, ul.ej { background: var(--accent-soft); padding: 14px 18px; color: var(--ink); }
+ul.ej { padding-left: calc(18px + 1.25em); }
+.ej em { font-style: italic; }
+p.ej { margin-bottom: 1.15em; }
+.ej-label { font-family: var(--f-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); margin: 1.6em 0 .4em !important; }
+.foot { margin-top: 3em; padding-top: 20px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-2); }
+
+/* Constructor del canvas */
+.b-top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; padding-block: 20px; border-bottom: 1px solid var(--rule); }
+.b-top .brand { font-family: var(--f-display); font-size: 1.15rem; }
+.b-wrap { max-width: 1120px; margin-inline: auto; padding-block: 28px 80px; display: grid; gap: 24px; }
+.b-land h2, .b-head h2 { font-family: var(--f-display); font-weight: 400; margin: 0; text-wrap: balance; line-height: 1.05; }
+.b-land h2 { font-size: clamp(2.2rem, 6vw, 4rem); max-width: 16ch; }
+.b-land .lead { font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--ink-2); max-width: 46ch; margin: 14px 0 0; line-height: 1.5; }
+.b-panels { display: grid; gap: 16px; margin-top: 28px; }
+@media (min-width: 760px) { .b-panels { grid-template-columns: 1fr 1fr; } }
+.b-panel { background: var(--surface); border: 1px solid var(--rule); padding: 22px; display: grid; gap: 10px; align-content: start; }
+.b-panel h3 { font-family: var(--f-display); font-weight: 400; font-size: 1.4rem; margin: 0; }
+.b-panel p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
+.b-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.b-in { flex: 1 1 180px; min-width: 0; font: 400 16px/1.3 var(--f-body); color: var(--ink); background: var(--bg); border: 1.5px solid var(--rule); border-radius: 4px; padding: 12px 14px; }
+.b-in:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.b-code { font-family: var(--f-mono); letter-spacing: .14em; text-transform: uppercase; }
+.btn.sm { padding: 10px 14px; font-size: 14px; }
+.btn.quiet { border-color: var(--rule); }
+.b-err { color: var(--accent); min-height: 1.4em; font-size: 14px; margin: 0; }
+.b-recent { display: flex; flex-wrap: wrap; gap: 8px; }
+.b-recent button { font: 500 13px/1 var(--f-mono); padding: 8px 12px; background: var(--accent-soft); border: 0; color: var(--ink); cursor: pointer; border-radius: 3px; }
+.b-recent button:hover { background: var(--fog); }
+.b-head { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; align-items: end; }
+.b-head h2 { font-size: clamp(1.9rem, 4.5vw, 3rem); }
+.b-chip { font: 500 14px/1 var(--f-mono); letter-spacing: .12em; color: var(--ink); background: var(--accent-soft); border: 1.5px dashed var(--ink-2); padding: 10px 14px; cursor: pointer; border-radius: 3px; }
+.b-chip:hover { border-color: var(--accent); }
+.b-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-family: var(--f-mono); font-size: 13px; color: var(--ink-2); }
+.b-bar { width: 120px; height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+.b-bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.b-notice { background: var(--accent-soft); padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font-size: 15px; }
+.b-notice .mono { font: 500 18px/1 var(--f-mono); letter-spacing: .14em; }
+.b-board { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.bs { background: var(--surface); border: 1px solid var(--rule); border-top: 3px solid var(--ink); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.bs h3 { font-family: var(--f-display); font-weight: 400; font-size: 1.35rem; line-height: 1.15; margin: 0; }
+.bs .q { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink-2); }
+.bn { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; align-content: start; flex: 1; }
+.bn li { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: start; background: var(--accent-soft); padding: 10px 12px; font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+.bn li.ex { display: block; background: transparent; border: 1px dashed var(--rule); color: var(--ink-2); font-style: italic; }
+.exl { display: block; font: 500 11px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; font-style: normal; margin-bottom: 6px; }
+.nt { cursor: text; white-space: pre-wrap; }
+.nt:hover { text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+.bn .x { appearance: none; border: 0; background: transparent; color: var(--ink-2); font: 500 12px/1 var(--f-mono); cursor: pointer; padding: 4px 2px; }
+.bn .x:hover, .bn .x.arm { color: var(--accent); }
+.bn li.edit { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.bn textarea { width: 100%; font: 400 15px/1.45 var(--f-body); color: var(--ink); background: var(--bg); border: 1.5px solid var(--ink-2); border-radius: 3px; padding: 8px 10px; resize: vertical; min-height: 64px; }
+.badd { display: flex; gap: 8px; margin-top: 4px; }
+.badd .b-in { padding: 10px 12px; font-size: 15px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.bs[data-sec="proposito"] { border-top-color: var(--accent); }
+.bs[data-sec="proposito"] h3 { font-size: 1.9rem; }
+.bs[data-sec="proposito"] .bn li { font-family: var(--f-display); font-size: 1.2rem; line-height: 1.35; padding: 14px 16px; }
+.bs[data-sec="proposito"] .bn li.ex { font-family: var(--f-display); }
+@media (min-width: 960px) {
+  .b-board { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "personas proposito objetivos" "capacidades proposito iniciativas" "principios acuerdos bienestar" "aprendizaje aprendizaje aprendizaje"; }
+  .bs[data-sec="proposito"] { grid-area: proposito; }
+  .bs[data-sec="objetivos"] { grid-area: objetivos; }
+  .bs[data-sec="iniciativas"] { grid-area: iniciativas; }
+  .bs[data-sec="personas"] { grid-area: personas; }
+  .bs[data-sec="capacidades"] { grid-area: capacidades; }
+  .bs[data-sec="principios"] { grid-area: principios; }
+  .bs[data-sec="acuerdos"] { grid-area: acuerdos; }
+  .bs[data-sec="bienestar"] { grid-area: bienestar; }
+  .bs[data-sec="aprendizaje"] { grid-area: aprendizaje; }
+}
+.b-foot { font-size: 14px; color: var(--ink-2); max-width: 70ch; margin: 0; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 12px 18px; font-size: 14px; border-radius: 4px; z-index: 20; max-width: calc(100vw - 32px); }
+@media print { #v-build { display: none; } }
+
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+@media print { .actions, .rail { display: none; } .hero::before { display: none; } }
+</style>
+
+<div id="v-guide">
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Guía para facilitar la conversación</p>
+    <h1>Un canvas para <em>enamorar</em></h1>
+    <p class="sub">Conversaciones para equipos que quieren generar sensaciones</p>
+    <ul class="facts">
+      <li><b>4 a 6 h</b> de encuentro en equipo</li>
+      <li><b>9</b> secciones</li>
+      <li><b id="mins">–</b> min de lectura</li>
+    </ul>
+    <div>
+      <div class="actions">
+        <button class="btn primary" type="button" data-go="build">Armar el canvas de mi equipo</button>
+        <button class="btn" id="btn-guide" type="button">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10M6 9.5l4 4 4-4M4 16.5h12"/></svg>
+          Descargar la guía (PDF)
+        </button>
+        <button class="btn" id="btn-canvas" type="button">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10M6 9.5l4 4 4-4M4 16.5h12"/></svg>
+          Descargar el canvas (PDF)
+        </button>
+        <a class="link" href="#podcast">Escuchar el podcast</a>
+        <a class="link" href="https://docs.google.com/presentation/d/18pTEbKjQTrMQeKlMDiPXCW4AZVb7ep9h5V8cahpeBD0/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Abrir el canvas en Google Slides</a>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</header>
+
+
+<section class="pod" id="podcast" aria-label="Podcast">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Para escuchar</p>
+      <h2>La guía, en voz alta</h2>
+      <p class="lead">Cinco capítulos con el texto completo de la guía, leídos con voz sintética. Sirve para el trayecto o para preparar el encuentro.</p>
+      <p class="now" id="now-n">Capítulo 1 de 5</p>
+      <p class="now-t" id="now-t">Introducción</p>
+      <div class="ctl">
+        <button class="play" id="p-play" type="button" aria-label="Reproducir"><svg id="p-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg></button>
+        <button id="p-back" type="button" aria-label="Retroceder 15 segundos">-15 s</button>
+        <button id="p-fwd" type="button" aria-label="Avanzar 30 segundos">+30 s</button>
+        <button id="p-rate" type="button" aria-label="Velocidad de reproducción">1x</button>
+      </div>
+      <div class="scrub">
+        <span id="p-cur">0:00</span>
+        <input id="p-seek" type="range" min="0" max="1000" value="0" aria-label="Posición en el capítulo">
+        <span id="p-dur">0:00</span>
+      </div>
+      <p class="pod-note" id="p-note"></p>
+      <audio id="aud" preload="none"></audio>
+    </div>
+    <ol class="eps" id="eps"></ol>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="layout">
+    <nav class="rail" aria-label="Contenido de la guía">
+      <details id="d-toc" open><summary>En esta guía</summary><ul id="toc"></ul></details>
+      <details id="d-sec" open><summary>Las nueve secciones</summary><ol id="secs"></ol></details>
+    </nav>
+    <article id="guide" aria-label="Guía"></article>
+  </div>
+</div>
+</div>
+<div id="v-build" hidden>
+  <div class="wrap">
+    <div class="b-top">
+      <span class="brand">Canvas de Equipos que Enamoran</span>
+      <button class="btn sm quiet" type="button" data-go="guide">Volver a la guía</button>
+    </div>
+    <div class="b-wrap">
+      <section class="b-land" id="b-land" aria-labelledby="b-h">
+        <p class="eyebrow">Tu propio canvas</p>
+        <h2 id="b-h">Armá el canvas de tu equipo</h2>
+        <p class="lead">Creá un espacio con el nombre de tu equipo y compartí el código. Cada persona suma ideas en las nueve secciones y todo queda guardado para seguir otro día.</p>
+        <div class="b-panels">
+          <form class="b-panel" id="f-create" autocomplete="off">
+            <h3>Crear un canvas</h3>
+            <p>Ponele nombre a tu equipo u organización y recibí un código para volver.</p>
+            <div class="b-row"><input class="b-in" id="in-name" type="text" maxlength="60" placeholder="Nombre del equipo" aria-label="Nombre del equipo"><button class="btn primary sm" id="b-create" type="submit">Crear</button></div>
+          </form>
+          <form class="b-panel" id="f-join" autocomplete="off">
+            <h3>Entrar con un código</h3>
+            <p>Si alguien de tu equipo ya creó el canvas, pegá su código.</p>
+            <div class="b-row"><input class="b-in b-code" id="in-code" type="text" maxlength="8" placeholder="ABC-123" aria-label="Código del canvas"><button class="btn sm" id="b-join" type="submit">Entrar</button></div>
+          </form>
+        </div>
+        <p class="b-err" id="b-err" role="alert"></p>
+      </section>
+      <section id="b-app" hidden>
+        <div class="b-head">
+          <div><p class="eyebrow">Canvas del equipo</p><h2 id="b-name"></h2></div>
+          <div class="b-row">
+            <button class="b-chip" id="b-chip" type="button" aria-label="Copiar el código del canvas"></button>
+            <button class="btn sm" id="b-pdf" type="button">Descargar mi canvas (PDF)</button>
+            <button class="btn sm quiet" id="b-leave" type="button">Salir</button>
+          </div>
+        </div>
+        <div class="b-meta" style="margin-top:14px"><span id="b-prog"></span><span class="b-bar" aria-hidden="true"><i id="b-barfill"></i></span><span id="b-live">Sincronizando…</span></div>
+        <div class="b-notice" id="b-notice" hidden><span>Canvas creado. Compartí este código para que otras personas sumen ideas:</span><span class="mono" id="b-newcode"></span><button class="btn sm" id="b-copy2" type="button">Copiar código</button><button class="btn sm quiet" id="b-ok" type="button">Entendido</button></div>
+        <div class="b-notice" id="b-ro" hidden>Tenés acceso de solo lectura. Para sumar ideas pedí acceso de Contributor al dueño del artefacto.</div>
+        <div class="b-board" id="b-board" style="margin-top:18px"></div>
+        <p class="b-foot" style="margin-top:18px">Cada idea es una nota: tocá una para editarla. Revisen Objetivos y Acuerdos cada tres meses y animense a sacar, agregar o cambiar lo que necesiten. Lo importante es la conversación.</p>
+      </section>
+    </div>
+  </div>
+  <div class="toast" id="b-toast" role="status" hidden></div>
+</div>
+
+<script type="text/plain" id="guide-md"># Un canvas para enamorar \- conversaciones para equipos que quieren generar sensaciones
+
+Cuando estamos enamorados sentimos mariposas en el estómago, estamos disponibles, abiertos, entregados. Nos sentimos bien. Vemos solo lo bueno. Pero el amor verdadero no es solo emoción: también es elección. Una forma de compromiso que busca el bien del otro, incluso cuando no es fácil. Como Rick mirando a Ilsa en el aeropuerto, bajo la niebla espesa de Casablanca, sabemos que estamos viviendo algo que no se olvida. Que incluso si termina, siempre nos quedará París.
+
+Tal vez estuviste enamorado una vez, mil veces, ninguna pero… ¿estuviste alguna vez en un equipo que enamora? ¿Cómo serían tus días si formaras parte de un equipo que te hace emocionar, qué te conmueve?
+
+Un Equipo que Enamora es un equipo que suspira y hace suspirar, que inspira y contagia porque disfruta del recorrido, que permite que cada uno de sus integrantes esté en su mejor versión y así logre resultados exponenciales. Un equipo así trabaja motivado, con un propósito claro que tiene sentido para cada una de las personas que lo integran. Que te hace sentir que este puede ser el inicio de una amistad.
+
+Un equipo así enamora a sus clientes, desarrollando productos y servicios adorables. Tiene ritmo, no vive estallado y encuentra balance, espacios para reflexionar y hacer de la mejora continua una realidad. Sabe dialogar, resolver conflictos y desarrolla la seguridad psicológica para que cada integrante pueda mostrarse tal cual es.
+
+Si querés reconocer un equipo que enamora, tendrás que encontrar claros signos de motivación, productividad, sentido y propósito a lo largo y ancho de todos sus integrantes… y claro\! un equipo que enamora es un equipo en el que todos quieren estar\!
+
+Un equipo que enamora, sin duda que alcanza resultados excepcionales… pero lo más importante, es que esos resultados, son sostenibles en el tiempo\!
+
+## La realidad es otra, pero puede cambiar
+
+Trabajar en equipo va más allá de lo que nos muestra un organigrama. Estar en una misma área, tener un mismo jefe,  no nos asegura que formemos equipos. Y menos aún que funcionemos en nuestra máxima vibración, explotando nuestro máximo potencial. 
+
+Mucho se habla del potencial de los equipos. 2 más 2 no son 4… El todo es más que la suma de las partes. Ahora, de la teoría a la práctica, ¡hay un largo trecho\! Áreas en las que trabajan personas que, a pesar de compartir espacios, no logran convertirse en equipos. Líderes que confían desde el discurso pero no logran delegar en su gente. Personas desmotivadas que no hacen más que ver el reloj una y otra vez, esperando que llegue el momento de salida de la oficina. 
+
+Estos y otros ejemplos suenan. Y resuenan.  
+En conversaciones de pasillo, en reuniones que no terminan de fluir, en miradas cansadas, en agendas repletas pero vacías de sentido.
+
+Y entonces, la pregunta aparece con fuerza: ¿Cómo podemos construir equipos que funcionen de verdad —con confianza, propósito, disfrute y sentido compartido?
+
+Estar enamorados es maravilloso. Enamorar también lo es. ¿Cómo hacemos para enamorarnos… de nosotros mismos, de nuestros compañeros, de nuestra organización? ¿Cómo hacemos para que otros se enamoren de nosotros, de nuestros equipos, de nuestra organización? ¿Cómo hacemos para crear equipos en los que todos quieran trabajar? ¿Cómo sostenemos estos niveles de engagement, compromiso, motivación?\! y sobre todo… ¿Cómo sostenemos el ofrecerle cotidianamente a nuestros clientes productos y servicios de excelencia, que hagan que nosotros seamos siempre su opción favorita?
+
+## Una herramienta para dar los primeros pasos 
+
+Cuando un equipo se está formando o reconfigurando, es una etapa de diseño, de construcción, un momento ideal para pensarnos, conversar y diseñar el equipo que queremos ser.   
+En el 2022, estaba trabajando en Mercado Libre, un market place latinoamericano que durante la pandemia se había consolidado como líder en la región. Se encontraba en un momento de crecimiento exponencial y ese crecimiento también traía aparejada las oportunidades de desarrollo y crecimiento para las personas que trabajaban allí. Me habían pedido que diseñar un programa para acompañar justamente a esos nuevos líderes, sea que vinieran de afuera o que fueran promovidos al rol por primera vez.  
+El objetivo era claro, acompañar a los líderes a que pudieran asumir y empoderarse en el rol lo más rápido posible.   
+Diseñamos un programa con distintas instancias y una de ellas se llamaba Leading Teams. Uno de los modelos que tuvimos presente durante el diseño del programa era el modelo de  Tuckman que dice que cada vez que una persona entra o sale del equipo, el equipo se vuelve a configurar,  vuelve a la etapa inicial y necesita conversar y ponerse de acuerdo sobre qué es lo que hacemos, por qué es importante y cómo queremos hacerlo. Esto que en el modelo de Tuckman es válido para cualquiera de los miembros, nos parecía que tenía que tener un mayor impacto cuando era el líder el que se incorporaba.  
+Por eso, quisimos incorporar este módulo de Leading Teams y regalarle a los líderes una herramienta para que durante su primer mes en la compañía pudiera tener esas conversaciones críticas con el equipo. 
+
+El canvas que te estoy presentando ahora, nació de ese contexto. Quisimos regalarles a los líderes una herramienta que pueda ayudarlos a abordar ese proceso de construcción de equipo.
+
+Nos inspiramos en el canvas de Alex Ivanov y Mitya Voloshchuk ([teamcanvas.com](http://teamcanvas.com)), pero le hicimos algunos cambios que en nuestra experiencia facilitando desarrollo de equipos eran importantes, como por ejemplo la necesidad de tener acuerdos claros y específicos sobre cómo vamos a comunicarnos, colaborar, cuidar de nosotros y también sobre cómo vamos a aprender. En un contexto de cambio constante y marcado por el ritmo vertiginoso que llevan las compañías esas secciones no podían faltar. También le incorporamos la sección de iniciativas y proyectos, que puede tener más sentido en un tipo de equipo que en otros, pero sí que en muchos equipos, especialmente los que brindan servicios internos o externos tener claridad de qué es lo que ofrecemos, cuál es nuestra propuesta de valor para nuestros usuarios/clientes se convierte en algo clave.
+
+En Mercado Libre, miles de líderes recibieron una versión muy parecida de este canvas en su Leader Boarding y se lo llevaron como herramienta para sus equipos. Ahora hicimos una nueva versión para que cualquier persona pueda facilitar un espacio con su equipo para conversar con tiempo y presencia sobre aquellas cosas que son importantes para construir confianza, entender el propósito, y lograr las metas de un modo feliz y libre de estrés.
+
+## ¿Cómo abordar este canvas?
+
+Te recomendamos agendar un espacio de al menos 4 a 6 horas con todos los miembros, para que puedan hacer este ejercicio y recorrer juntos cada parte del lienzo, cosechando qué es lo que piensa cada persona, luego poniéndolo en común y logrando acuerdos con todo el equipo.
+
+Empecemos por el centro. Todo equipo nace con un **Propósito**, una misión, es el gran  “para qué”, cómo contribuimos a crear valor para nuestros clientes, usuarios o beneficiarios. En definitiva, aquí nos respondemos ¿para qué existimos? ¿cuál es nuestra razón de ser? 
+
+Un equipo de transformación cultural definió una vez este propósito:   
+*“Somos el equipo que acompaña a la organización en su transición hacia una cultura más colaborativa, ágil y consciente. Nuestro propósito es facilitar procesos que permitan que las personas vivan una experiencia de trabajo más humana, significativa y sostenible.”*
+
+En otra sección hablamos de los **objetivos** comunes que tenemos como equipo, aquí plasmamos nuestra estrategia, qué metas queremos alcanzar, qué indicadores nos dirán que la estamos alcanzando. Puede ayudar tener tres horizontes temporales, una mirada de largo plazo (3 años), una de mediano (el año) y otra de corto, 3 o 4 meses. En todos los casos, nos preguntamos…
+
+¿Qué es lo que el equipo realmente quiere lograr? ¿Cuál es nuestro objetivo clave que es factible, medible y limitado en el tiempo?
+
+Ejemplo:  
+*Objetivo: Consolidar una red interna de agentes de cambio que impulse la transformación cultural de manera sostenible en toda la organización.*  
+*Resultados Clave:*
+
+* *Co-crear un programa de formación para agentes de cambio y certificar al menos 60 personas en 3 años.*  
+* *Lograr que el 80% de las áreas clave cuenten con al menos un agente de cambio activo.*  
+* *Aumentar en un 25% el índice de percepción de cultura colaborativa en la encuesta de clima.*
+
+*Objetivo: Implementar una primera ola de experimentos culturales que activen el cambio en tres áreas clave de la organización.*  
+*Resultados Clave:*
+
+* *Diseñar e implementar al menos 9 intervenciones culturales (3 por área) validadas con usuarios internos.*  
+* *Documentar los aprendizajes y adaptaciones de cada experimento en un repositorio compartido.*  
+* *Medir un aumento del 15% en la participación activa en espacios culturales en esas tres áreas.*
+
+*Objetivo: Activar los primeros hitos culturales visibles a través del rediseño del onboarding y nuevos rituales compartidos.*  
+*Resultados Clave:*
+
+* *Co-crear junto a RRHH un onboarding cultural piloto y aplicarlo con al menos 20 nuevos ingresos.*  
+* *Identificar y rediseñar 3 rituales culturales relevantes (bienvenida, cierre de ciclo, reconocimiento).*  
+* *Recibir retroalimentación positiva (promedio ≥8/10) de al menos 80% de las personas que participen en esas experiencias.*
+
+Por otra parte, **¿Qué es lo que hacemos para lograr ese objetivo? ¿Cuáles son las principales iniciativas, procesos, proyectos? Es decir, ¿qué hacemos?**
+
+Ejemplo:  
+*Propuesta de Valor del equipo de transformación cultural:*  
+*Acompañamos a la organización en su evolución cultural mediante intervenciones que conectan propósito, prácticas y personas. Creamos experiencias que habilitan nuevas conversaciones, fortalecen la identidad compartida y convierten la cultura deseada en una práctica viva.*
+
+*Iniciativas y proyectos clave:*
+
+* *Nuestro ADN: Workshops inmersivos para líderes y agentes de cambio donde se exploran creencias, tensiones y hábitos culturales.*  
+* *Mapa de Rituales: Diagnóstico y rediseño participativo de los rituales que marcan la experiencia diaria del equipo (reuniones, celebraciones, bienvenidas, cierres).*  
+* *Story Harvesting: Recogida y curaduría de historias internas que reflejan los valores emergentes y los momentos en que "la cultura ya está pasando".*  
+* *Cápsulas de Cultura: Microcontenidos visuales y narrativos distribuidos semanalmente por canales internos (Slack, email, TV interna) para sembrar lenguaje compartido.*  
+* *Red de Agentes de Cambio: Formación y acompañamiento a referentes de distintas áreas para actuar como nodos multiplicadores del cambio.*  
+* *Presensing: Entrevistas abiertas, focus groups y encuestas de pulso para mapear tensiones y oportunidades de transformación en tiempo real.*  
+* *Team Time: Intervenciones relámpago en equipos donde se detectan bloqueos de colaboración, para abrir conversación y facilitar acuerdos.*
+
+Después tenemos la sección de **Personas y Roles**, es decir, quiénes forman parte de nuestro equipo y qué rol ocupa cada persona. ¿Qué se espera de cada uno en el equipo?
+
+Ejemplo:
+
+* *Flor coordina la estrategia general y gestiona stakeholders.*  
+* *Tomás facilita workshops en territorio y conversa con los líderes, es también el facilitador de nuestras reuniones.*   
+* *Luna es la secretaria del círculo y desarrolla contenido y diseña artefactos culturales.*  
+* *Nico mide impacto y construye narrativas de cambio; en el equipo nos ayudará a cuidar nuestra imagen interna y externa.*   
+* *Todas las personas pueden proponer proyectos e iniciativas. Los roles se revisan semestralmente en nuestra reunión de círculo.*
+
+Pasemos a la siguiente sección de nuestro lienzo. Para que un equipo pueda generar valor, tiene que tener todas las **capacidades** y  **herramientas** que necesita para alcanzar lo que se propone (independientemente de quiénes conformemos hoy ese equipo). Por eso aquí nos preguntamos… ¿Cuáles son las competencias y habilidades que necesitamos en el equipo para lograr nuestros objetivos? ¿Y con qué herramientas contamos o deberíamos contar?
+
+Si seguimos con nuestro equipo, podría ser algo así::  
+*Necesitábamos habilidades de facilitación participativa, diseño de experiencias de aprendizaje, análisis sistémico, medición de impacto cultural y comunicación narrativa.*  
+*En un trimestre nos propusimos fortalecer especialmente nuestra capacidad para sostener conversaciones difíciles.*
+
+Y también empezamos a incorporar herramientas de IA para potenciar nuestras capacidades:
+
+* Usamos ChatGPT como copiloto creativo: nos ayuda a explorar ideas, redactar borradores, ordenar información, preparar ejercicios o encontrar nuevos enfoques cuando estamos bloqueados.  
+* Gamma y Notion AI nos sirven para prototipar documentos, visualizar conceptos y sistematizar aprendizajes.
+
+La IA no toma nuestras decisiones, pero nos acelera, amplifica y desafía. Nos exige ser más claros con nuestros criterios y más conscientes de nuestros sesgos.  
+Acordamos usarla de forma responsable y transparente, y revisar críticamente todo lo que co-creamos con IA antes de compartirlo.  
+Somos conscientes que la IA no es solo una herramienta. Es una nueva forma de pensar y de crear en equipo. La usamos para expandir posibilidades, no para reemplazar conversaciones.
+
+En otra sección del Canvas conversamos sobre nuestros **principios**. Qué invitaciones nos queremos hacer, qué recordatorios nos queremos hacer para vivirlos.
+
+Ejemplos:
+
+* *Nos recordamos cada día: “Nada para nosotrxs sin nosotrxs”.*  
+* *Vivimos la transformación que proponemos: curiosidad, apertura, cuidado, escucha, disfrute.*  
+* *Pide lo que necesitas, ofrece lo que tienes.*   
+* *Incómodo es bueno. Celebramos la incomodidad.*  
+* *Valoramos el desacuerdo bien intencionado como una fuente de aprendizaje colectivo.*  
+* *Practicamos la gratitud y la valoración.*  
+* *Cuidamos la belleza como expresión de nuestra cultura de excelencia y bienestar.*
+
+En cuanto a los **acuerdos** operativos, invitamos al equipo a construir acuerdos sobre la información que necesitamos compartir, sobre los canales de comunicación que vamos a usar, y sobre cómo vamos a colaborar. Aquí pensamos qué reuniones queremos tener, con qué periodicidad, cómo vamos a tomar las decisiones en el equipo, cómo vamos a celebrar nuestros logros, qué acuerdos necesitamos para divertirnos y disfrutar, cómo entramos en flow… y todos los acuerdos que sean importantes para desarrollarnos.
+
+Ejemplo:
+
+* *Reuniones de equipo de sincro cada lunes de 11 a 12 (con espacio de check-in).*  
+* *Reuniones de conexión y aprendizaje cada viernes de 13 a 15 (con almuerzo incluído, después empieza el finde).*  
+* *Usamos Notion para documentación compartida.*  
+* *Tomamos decisiones con el proceso de consentimiento (inspirado en sociocracia).*  
+* *Celebramos logros con rituales breves en Slack: cada logro cultural merece una ovación.*  
+* *Tenemos espacio trimestral para revisar y ajustar nuestros acuerdos.*
+
+En **bienestar** nos preguntamos cómo cuidamos de nosotros mismos y de los otros. Se trata también de algunos acuerdos, pero sobre todo de una conversación de lo que cada persona necesita para estar-bien.
+
+*\- Usamos una escala semanal de energía (1 a 5\) para ver cómo estamos y ofrecernos apoyo si alguien está en 1 o 2\.*  
+*\- Cada persona puede levantar la mano si siente que el ritmo o carga está siendo excesiva. Lo conversamos sin juicio.*  
+*\- Celebramos pequeños rituales: almuerzo de los viernes, pausas de silencio intencional en reuniones clave, usamos la campana para traernos al presente, facilitamos todos los espacios.*  
+*\- Procuramos que cada persona priorice: espacio para su familia, amigos, mascotas, visitas al médico, actividad física, espiritual, arte. Nos compartimos el fruto y el impacto de estas actividades en nuestro trabajo, para recordarnos que nos hacen bien.* 
+
+Por último en la parte de aprendizaje conversamos sobre…  
+¿Cómo recibimos feedback de los usuarios? ¿Qué instancias tenemos para eso?  
+¿Cómo aprendemos, ejecutamos la mejora continua y garantizamos la calidad?  
+¿Qué capacidades queremos desarrollar como equipo? ¿cómo vamos a aprender de los errores? (por ejemplo con Postmortem, retrospectivas, etc.) y cómo compartimos y generamos aprendizaje colaborativo.
+
+Ejemplo:  
+*\- Hacemos retrospectivas cada dos meses para revisar nuestros proyectos.*  
+*\- Mantenemos un Muro de Aprendizajes en Notion donde cada semana sumamos algo que aprendimos.*  
+*\- Organizamos sesiones “fail & learn” donde compartimos errores y lo que surgió de ahí.*  
+*\- Tenemos un canal interno de lecturas, podcasts y videos para nutrirnos.*  
+*\- Durante y al finalizar cada taller/workshop/facilitación pedimos feedback a los usuarios.*  
+*\- Cada 6 meses, evaluamos con nuestros destinatarios si tienen sentido las acciones que estamos haciendo y re-calculamos.* 
+
+La particularidad que tienen los Canvas o lienzos es que hay cosas que se tocan entre sí y esto quiere decir que como equipo somos un sistema y cuando modificamos una de sus partes, estamos impactando también en las otras. 
+
+Tener conciencia de esto nos ayuda a ver que si cambia alguna persona del equipo, hay algo en objetivos y en actividades que va a cambiar. O si agregamos nuevas iniciativas, quizás tendremos que revisar si tenemos las capacidades necesarias para ejecutarlas.
+
+Por ejemplo, en nuestro equipo de transformación cultural, cuando Luna (quien lideraba el diseño de artefactos y piezas visuales) se trasladó a otra área, notamos que los entregables perdieron claridad visual y fuerza narrativa. Eso nos obligó a revisar nuestra propuesta de valor, redefinir el rol creativo dentro del equipo, y como consecuencia, repensar algunas actividades (como las cápsulas culturales y los soportes para workshops), e incluso ajustar nuestros objetivos de corto plazo.
+
+Mirarlo como un sistema nos invita a ser más conscientes de cómo estas variables —personas, actividades, capacidades, objetivos— se articulan entre sí.  
+Cuando un equipo toma decisiones sin mirar el todo, pierde coherencia.  
+Cuando lo hace desde una mirada sistémica, gana inteligencia colectiva.
+
+A veces, incluso las mejores intenciones pueden generar el efecto contrario si no miramos el sistema completo.
+
+En este equipo que te cuento, nos pasó que uno de nosotros había leído Hábitos Atómicos de James Clear y había quedado manija con la idea de los pequeños cambios sostenidos en el tiempo. Nos entusiasmamos tanto con el concepto que decidimos lanzar una nueva iniciativa: el “Laboratorio de Microcambios”, un espacio para activar hábitos culturales positivos en cada equipo de la organización.
+
+La idea era buena. El entusiasmo era real. Pero no hicimos algo clave: leer el sistema completo antes de intervenirlo.
+
+Nunca revisamos si teníamos la capacidad real de sostener esa iniciativa. Tampoco nos preguntamos si el momento era el adecuado, si encajaba con nuestros objetivos de corto plazo, ni si debíamos ajustar nuestras actividades o acuerdos operativos para integrarla.
+
+El resultado: acumulamos más trabajo del que podíamos procesar, nos pisamos con otras acciones en curso, y el equipo empezó a mostrar signos de saturación.  
+Lo peor fue que nadie cuestionó la iniciativa en voz alta, porque todos estábamos “para adelante”. Hasta que los síntomas hablaron por nosotros: desorden, agotamiento, frustración.
+
+Esa experiencia nos dejó una gran lección: en un equipo, incluso las buenas ideas pueden hacer daño si no se integran con conciencia sistémica.
+
+Te recomendamos que, al menos las secciones de Objetivos y Acuerdos, las revisen y actualicen trimestralmente. Cada 3 meses hagan una pausa como equipo, vuelvan a sus Canvas y revisen:  
+¿Seguimos teniendo los mismos objetivos? ¿Deberíamos cambiar, agregar o eliminar alguno?   
+¿Qué tenemos que dejar de hacer? ¿Qué queremos seguir haciendo? ¿Qué tenemos que pivotar?  
+¿Estamos bien con estos acuerdos, los seguimos necesitando?  
+¿Cuáles nos han servido y cuáles no?  
+¿Qué más podemos hacer?
+
+**Un último tip antes de cerrar:**  
+Si podés, hacé este ejercicio fuera de la oficina. Cambiar de contexto cambia la conversación.  
+Salir del espacio habitual —donde a veces se activa el modo “tengo mil cosas que hacer”— y encontrarse en un entorno diferente, especialmente en la naturaleza, invita a la presencia, a la apertura y a pensar desde otro lugar.
+
+La naturaleza tiene esa magia: nos baja las defensas, nos amplía la mirada y nos conecta con lo esencial. Cuando el contexto cambia, es más fácil que cambien las conversaciones. Y a la naturaleza la podés encontrar en el parque que queda cerca de tu oficina o en la terraza de ese resto que abre al mediodía, pero les puede abrir el espacio para el desayuno. 
+
+Creeme que no es un lujo. Es una inversión que puede cambiar la calidad de estas convresaciones.
+
+Y sí… se lo que podés estar pensando:  
+¿De verdad vamos a dedicar una mañana entera a esto? ¡Con todo lo que tenemos que hacer\! ¿Vamos a invertir tiempo y presupuesto en salir de la oficina? 
+
+La resistencia aparece. Especialmente cuando miramos con la lógica del corto plazo.  
+Pero te lo decimos con la experiencia de muchos equipos: lo que parece “perder tiempo” hoy, es lo que te ahorra conflictos y desgaste mañana.
+
+Darle al equipo un espacio como este no es un freno. Es un impulso.  
+Un tiempo que no solo genera acuerdos o claridad, sino que construye algo más profundo: identidad, confianza, sentido de pertenencia.
+
+Y cuando eso está presente, todo lo demás (los resultados, la innovación, la motivación) se vuelve no solo más posible, sino también más humano.
+
+Estas secciones del canvas son las que a nosotros nos hicieron sentido. Son fruto de la experiencia, de muchos talleres facilitados, de errores cometidos y aprendizajes compartidos. Pero, no son una receta.
+
+Sentite totalmente libre de sacar, agregar o modificar lo que necesites.  
+Lo importante no es seguir el lienzo al pie de la letra, sino **habilitar una buena conversación con tu equipo**.
+
+Anímate a usar esta u otra herramienta. Lo importante no es la metodología, sino la conversación. Así que más allá del método que elijas, no postergues lo esencial: regalarle a tu equipo tiempo de calidad para construir juntos la experiencia que quieren vivir. 
+
+## El día después…
+
+El canvas es un documento vivo. Lo que escribieron no está escrito en piedra, sino en papel y lápiz. Se puede borrar, volver a escribir, volver a conversar.  
+Porque los equipos cambian. Las personas crecen. Las metas evolucionan. Y cuando nada cambia por sí solo, tal vez lo que toca es animarse a crear el cambio.
+
+Te sugerimos agendar, al menos cada tres meses, una breve retrospectiva del equipo para volver a mirarlo con ojos frescos y preguntarse: 
+
+¿Qué de esto sigue vigente?  
+¿Qué ya no tiene sentido?  
+¿Qué necesitamos ahora que antes no?  
+¿Qué conversaciones venimos postergando?
+
+El canvas no es el fin. Es el comienzo. Un mapa para conversar mejor y enamorarnos —otra vez— del equipo que estamos creando.
+
+Link al [canvas](https://docs.google.com/presentation/d/18pTEbKjQTrMQeKlMDiPXCW4AZVb7ep9h5V8cahpeBD0/edit?usp=sharing)</script>
+
+<script>
+(function () {
+  var DRIVE_ID = "18pTEbKjQTrMQeKlMDiPXCW4AZVb7ep9h5V8cahpeBD0";
+  var md = document.getElementById("guide-md").textContent;
+
+  /* ---------- Parseo del Markdown de la guía ---------- */
+  function unesc(s) { return s.replace(/\\([\\`*_{}\[\]()#+\-.!>~|])/g, "$1"); }
+  function inline(raw) {
+    var out = [], re = /(\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g, last = 0, m;
+    while ((m = re.exec(raw))) {
+      if (m.index > last) out.push({ t: unesc(raw.slice(last, m.index)) });
+      var tk = m[0];
+      if (tk.indexOf("**") === 0) out.push({ t: unesc(tk.slice(2, -2)), b: true });
+      else if (tk.charAt(0) === "*") out.push({ t: unesc(tk.slice(1, -1)), i: true });
+      else { var lm = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(tk); out.push({ t: unesc(lm[1]), href: lm[2] }); }
+      last = re.lastIndex;
+    }
+    if (last < raw.length) out.push({ t: unesc(raw.slice(last)) });
+    return out;
+  }
+  function parseBlocks(src) {
+    var lines = src.split("\n"), blocks = [], pLines = null, list = null;
+    function segsOf(arr) {
+      var s = "";
+      arr.forEach(function (o, k) { s += (k ? (arr[k - 1].hard ? "\n" : " ") : "") + o.t; });
+      return inline(s);
+    }
+    function flush() {
+      if (pLines) { blocks.push({ type: "p", segs: segsOf(pLines) }); pLines = null; }
+      if (list) { blocks.push({ type: "ul", items: list.map(inline) }); list = null; }
+    }
+    lines.forEach(function (ln) {
+      var hard = / {2}$/.test(ln), t = ln.replace(/\s+$/, "");
+      if (!t.trim()) { flush(); return; }
+      var h = /^(#{1,2}) (.*)$/.exec(t);
+      if (h) { flush(); blocks.push({ type: "h" + h[1].length, segs: inline(h[2].replace(/\s{2,}/g, " ")) }); return; }
+      h = /^\* (.*)$/.exec(t);
+      if (h) { if (pLines) { blocks.push({ type: "p", segs: segsOf(pLines) }); pLines = null; } (list = list || []).push(h[1].replace(/\s{2,}/g, " ")); return; }
+      if (list) { blocks.push({ type: "ul", items: list.map(inline) }); list = null; }
+      (pLines = pLines || []).push({ t: t.trim().replace(/\s{2,}/g, " "), hard: hard });
+    });
+    flush();
+    return blocks;
+  }
+
+  var blocks = parseBlocks(md);
+  function plain(segs) { return segs.map(function (s) { return s.t; }).join(""); }
+  function allItalic(segs) {
+    var any = false;
+    for (var k = 0; k < segs.length; k++) { if (segs[k].t.trim()) { if (!segs[k].i) return false; any = true; } }
+    return any;
+  }
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function html(segs) {
+    return segs.map(function (s) {
+      var x = esc(s.t).replace(/\n/g, "<br>");
+      if (s.href) return '<a href="' + esc(s.href) + '" target="_blank" rel="noopener noreferrer">' + x + "</a>";
+      if (s.b) x = "<strong>" + x + "</strong>";
+      if (s.i) x = "<em>" + x + "</em>";
+      return x;
+    }).join("");
+  }
+
+  /* ---------- Render ---------- */
+  var art = document.getElementById("guide"), toc = document.getElementById("toc"), words = 0;
+  var h2s = [];
+  var firstH2 = false, introAdded = false;
+  function slug(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  /* Las nueve secciones del canvas, en el orden en que la guía las recorre */
+  var SECS = [
+    ["Propósito", "Empecemos por el centro"],
+    ["Objetivos", "En otra sección hablamos de los"],
+    ["Iniciativas y proyectos", "Por otra parte"],
+    ["Personas y roles", "Después tenemos la sección de"],
+    ["Capacidades y herramientas", "Pasemos a la siguiente sección"],
+    ["Principios", "En otra sección del Canvas conversamos"],
+    ["Acuerdos", "En cuanto a los"],
+    ["Bienestar", "En bienestar nos preguntamos"],
+    ["Aprendizaje", "Por último en la parte de aprendizaje"]
+  ];
+  function secOf(txt, used) {
+    for (var n = 0; n < SECS.length; n++) if (!used[n] && txt.indexOf(SECS[n][1]) === 0) { used[n] = 1; return n; }
+    return -1;
+  }
+  var usedR = [];
+  var out = [];
+  blocks.forEach(function (b) {
+    if (b.type === "h1") return;
+    words += plain(b.segs || []).split(/\s+/).length;
+    if (b.type === "ul") {
+      b.items.forEach(function (it) { words += plain(it).split(/\s+/).length; });
+      var ej = b.items.every(allItalic);
+      out.push('<ul' + (ej ? ' class="ej"' : "") + ">" + b.items.map(function (it) { return "<li>" + html(it) + "</li>"; }).join("") + "</ul>");
+    } else if (b.type === "h2") {
+      var t = plain(b.segs), id = "s-" + slug(t);
+      h2s.push({ id: id, t: t });
+      out.push('<h2 id="' + id + '">' + html(b.segs) + "</h2>");
+    } else {
+      var txt = plain(b.segs).trim();
+      var sn = secOf(txt, usedR);
+      if (sn >= 0) out.push('<h3 class="sec-h" id="c-' + sn + '">' + esc(SECS[sn][0]) + "</h3>");
+      if (/^ejemplo:?$/i.test(txt)) out.push('<p class="ej-label">Ejemplo</p>');
+      else if (allItalic(b.segs)) out.push('<p class="ej">' + html(b.segs) + "</p>");
+      else out.push("<p>" + html(b.segs) + "</p>");
+    }
+  });
+  art.innerHTML = out.join("");
+  document.getElementById("mins").textContent = Math.max(1, Math.round(words / 210));
+
+  /* Tabla de contenidos */
+  var tocHtml = '<li><a href="#guide" data-t="guide">Introducción</a></li>';
+  h2s.forEach(function (h) { tocHtml += '<li><a href="#' + h.id + '" data-t="' + h.id + '">' + esc(h.t) + "</a></li>"; });
+  toc.innerHTML = tocHtml;
+
+  var secHtml = "";
+  SECS.forEach(function (s, n) {
+    var el = art.querySelector("#c-" + n);
+    if (el) { secHtml += '<li><a href="#c-' + n + '" data-t="c-' + n + '">' + esc(s[0]) + "</a></li>"; }
+    else secHtml += "<li><a href=\"#guide\">" + esc(s[0]) + "</a></li>";
+  });
+  document.getElementById("secs").innerHTML = secHtml;
+
+  /* En pantallas chicas los índices arrancan cerrados */
+  if (window.matchMedia && !window.matchMedia("(min-width: 960px)").matches) {
+    document.getElementById("d-toc").open = false;
+    document.getElementById("d-sec").open = false;
+  }
+
+  /* Resalta la sección visible en el índice */
+  try {
+    var links = {};
+    Array.prototype.forEach.call(document.querySelectorAll(".rail a[data-t]"), function (a) { links[a.dataset.t] = a; });
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        var a = links[e.target.id]; if (!a) return;
+        if (e.isIntersecting) {
+          Array.prototype.forEach.call(document.querySelectorAll(".rail a.on"), function (x) { x.classList.remove("on"); });
+          a.classList.add("on");
+        }
+      });
+    }, { rootMargin: "-15% 0px -70% 0px" });
+    Array.prototype.forEach.call(art.querySelectorAll("h2[id], h3[id]"), function (el) { io.observe(el); });
+  } catch (e) {}
+
+
+  /* ---------- Podcast ---------- */
+  var POD = [
+    { t: "Introducción", d: 91, u: "/_blob/c7c323e386249a1e77c0cb08e5706541" },
+    { t: "La realidad es otra, pero puede cambiar", d: 81, u: "/_blob/ed541ac919636a5bdca636bdc696b35d" },
+    { t: "Una herramienta para dar los primeros pasos", d: 144, u: "/_blob/18e314aaa2ab8c5bfb4d6b6d4856c58f" },
+    { t: "¿Cómo abordar este canvas?", d: 742, u: "/_blob/c187dfa1ad3dda538d1a55884fcdf487" },
+    { t: "El día después", d: 36, u: "/_blob/ab9dfe918d5cd99aea4cfa8b01bda013" }
+  ];
+  (function () {
+    var aud = document.getElementById("aud"), list = document.getElementById("eps");
+    var playB = document.getElementById("p-play"), ico = document.getElementById("p-ico");
+    var seek = document.getElementById("p-seek"), cur = document.getElementById("p-cur"), dur = document.getElementById("p-dur");
+    var note = document.getElementById("p-note"), rateB = document.getElementById("p-rate");
+    var ready = POD.every(function (p) { return p.u && p.u.indexOf("%%") !== 0; });
+    var idx = 0, seeking = false, lastSave = 0, rates = [1, 1.25, 1.5, 1.75, 2], ri = 0;
+    var PLAY = "M7 4.5v15l12-7.5z", PAUSE = "M6 4.5h4.2v15H6zM13.8 4.5H18v15h-4.2z";
+    function fmt(s) { s = Math.max(0, Math.round(s || 0)); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+    function save() { try { localStorage.setItem("tc-pod", JSON.stringify({ i: idx, t: aud.currentTime || 0 })); } catch (e) {} }
+    function paint() {
+      Array.prototype.forEach.call(list.children, function (li, k) { var b = li.firstChild; if (k === idx) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current"); });
+      document.getElementById("now-n").textContent = "Capítulo " + (idx + 1) + " de " + POD.length;
+      document.getElementById("now-t").textContent = POD[idx].t;
+      dur.textContent = fmt(POD[idx].d);
+    }
+    function load(i, at, autoplay) {
+      idx = i; aud.src = POD[i].u; aud.playbackRate = rates[ri];
+      aud.addEventListener("loadedmetadata", function onm() { aud.removeEventListener("loadedmetadata", onm); if (at) aud.currentTime = at; }, { once: true });
+      seek.value = 0; cur.textContent = fmt(at || 0); paint();
+      if (autoplay) aud.play().catch(function () { note.textContent = "No pude reproducir el audio. Tocá reproducir de nuevo."; });
+    }
+    list.innerHTML = POD.map(function (p, k) {
+      return '<li><button class="ep" type="button" data-i="' + k + '"><span class="n">' + (k + 1) + '</span><span class="t">' + esc(p.t) + '</span><span class="d">' + fmt(p.d) + "</span></button></li>";
+    }).join("");
+    paint();
+    if (!ready) { [playB, document.getElementById("p-back"), document.getElementById("p-fwd")].forEach(function (b) { b.disabled = true; }); note.textContent = "Los audios se están cargando. Volvé en un momento."; return; }
+    note.textContent = "Voz sintética en español rioplatense. Duración total: " + fmt(POD.reduce(function (a, p) { return a + p.d; }, 0)) + " min.";
+    var saved = null; try { saved = JSON.parse(localStorage.getItem("tc-pod") || "null"); } catch (e) {}
+    if (saved && POD[saved.i]) { load(saved.i, saved.t > 3 ? saved.t : 0, false); } else { aud.src = POD[0].u; }
+    list.addEventListener("click", function (e) { var b = e.target.closest(".ep"); if (b) load(+b.dataset.i, 0, true); });
+    playB.addEventListener("click", function () { if (aud.paused) aud.play().catch(function () { note.textContent = "No pude reproducir el audio. Probá de nuevo."; }); else aud.pause(); });
+    document.getElementById("p-back").addEventListener("click", function () { aud.currentTime = Math.max(0, aud.currentTime - 15); });
+    document.getElementById("p-fwd").addEventListener("click", function () { aud.currentTime = Math.min(aud.duration || POD[idx].d, aud.currentTime + 30); });
+    rateB.addEventListener("click", function () { ri = (ri + 1) % rates.length; aud.playbackRate = rates[ri]; rateB.textContent = rates[ri] + "x"; });
+    aud.addEventListener("play", function () { ico.innerHTML = '<path d="' + PAUSE + '"/>'; playB.setAttribute("aria-label", "Pausar"); });
+    aud.addEventListener("pause", function () { ico.innerHTML = '<path d="' + PLAY + '"/>'; playB.setAttribute("aria-label", "Reproducir"); save(); });
+    aud.addEventListener("loadedmetadata", function () { if (isFinite(aud.duration)) dur.textContent = fmt(aud.duration); });
+    aud.addEventListener("timeupdate", function () {
+      var d = isFinite(aud.duration) && aud.duration ? aud.duration : POD[idx].d;
+      if (!seeking) seek.value = Math.round(aud.currentTime / d * 1000);
+      cur.textContent = fmt(aud.currentTime);
+      var now = Date.now(); if (now - lastSave > 4000) { lastSave = now; save(); }
+    });
+    aud.addEventListener("ended", function () {
+      if (idx < POD.length - 1) load(idx + 1, 0, true);
+      else { try { localStorage.removeItem("tc-pod"); } catch (e) {} note.textContent = "Terminaste la guía."; }
+    });
+    aud.addEventListener("error", function () { if (aud.src) note.textContent = "No pude cargar este capítulo. Probá con otro o recargá la página."; });
+    seek.addEventListener("input", function () { seeking = true; var d = isFinite(aud.duration) && aud.duration ? aud.duration : POD[idx].d; cur.textContent = fmt(seek.value / 1000 * d); });
+    seek.addEventListener("change", function () { var d = isFinite(aud.duration) && aud.duration ? aud.duration : POD[idx].d; aud.currentTime = seek.value / 1000 * d; seeking = false; });
+  })();
+
+  /* ---------- Estado y descargas ---------- */
+  var statusEl = document.getElementById("status");
+  function say(msg, err) { statusEl.textContent = msg; statusEl.className = "status" + (err ? " err" : ""); }
+  function errMsg(e, what) {
+    var c = e && e.code;
+    if (c === "declined") return "Cancelaste la descarga. Podés volver a intentarlo cuando quieras.";
+    if (c === "rate_limited") return "Hay otra confirmación abierta. Esperá unos segundos y probá de nuevo.";
+    if (c === "approval_required" || c === "not_granted") return "Para bajar " + what + " hace falta tu aprobación. Aceptala cuando la página la pida.";
+    return "No pude descargar " + what + ". Probá de nuevo o abrilo desde Google Slides.";
+  }
+  function busy(btn, on) { btn.disabled = on; }
+
+  /* Guía a PDF */
+  var GUIDE_TITLE = "", GUIDE_SUB = "";
+  blocks.forEach(function (b) {
+    if (b.type === "h1" && !GUIDE_TITLE) {
+      var parts = plain(b.segs).split(/\s[-–]\s/);
+      GUIDE_TITLE = parts[0]; GUIDE_SUB = (parts[1] || "").replace(/^./, function (c) { return c.toUpperCase(); });
+    }
+  });
+
+  function latin(s) {
+    return s.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, "-")
+      .replace(/…/g, "...").replace(/≥/g, ">=").replace(/ /g, " ").replace(/[^\u0000-ÿ]/g, "");
+  }
+
+  function buildGuidePdf() {
+    var jsPDF = window.jspdf && window.jspdf.jsPDF;
+    if (!jsPDF) throw new Error("jspdf");
+    var doc = new jsPDF({ unit: "mm", format: "a4" });
+    var W = 210, H = 297, M = 22, CW = W - 2 * M, y = M;
+    var INK = [27, 34, 48], MUT = [90, 100, 117], ACC = [179, 38, 75];
+    var BODY = 10.5, LH = 5.5;
+
+    function color(c) { doc.setTextColor(c[0], c[1], c[2]); }
+    function room(h) { if (y + h > H - M) { doc.addPage(); y = M; } }
+    function style(s) { return s.b && s.i ? "bolditalic" : s.b ? "bold" : s.i ? "italic" : "normal"; }
+
+    function flow(segs, x0, wmax, col) {
+      var toks = [];
+      segs.forEach(function (s) {
+        latin(s.t).split(/(\n)/).forEach(function (p) {
+          if (p === "\n") { toks.push({ br: true }); return; }
+          p.split(/(\s+)/).forEach(function (w) { if (w !== "") toks.push({ w: w, st: style(s), ws: /^\s+$/.test(w) }); });
+        });
+      });
+      doc.setFontSize(BODY); color(col);
+      room(LH); var x = x0;
+      toks.forEach(function (k) {
+        if (k.br) { y += LH; room(LH); x = x0; return; }
+        doc.setFont("helvetica", k.st);
+        var w = doc.getTextWidth(k.w);
+        if (k.ws) { if (x > x0) x += w; return; }
+        if (x + w > x0 + wmax && x > x0) { y += LH; room(LH); x = x0; }
+        doc.text(k.w, x, y); x += w;
+      });
+      y += LH;
+    }
+
+    /* Portada */
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); color(MUT);
+    doc.text("GUIA PARA FACILITAR LA CONVERSACION", M, y); y += 12;
+    doc.setFont("times", "bold"); doc.setFontSize(30); color(INK);
+    doc.splitTextToSize(latin(GUIDE_TITLE), CW).forEach(function (l) { doc.text(l, M, y); y += 12.5; });
+    doc.setDrawColor(ACC[0], ACC[1], ACC[2]); doc.setLineWidth(0.9); doc.line(M, y - 5, M + 18, y - 5); y += 4;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(13); color(MUT);
+    doc.splitTextToSize(latin(GUIDE_SUB), CW - 20).forEach(function (l) { doc.text(l, M, y); y += 6.5; });
+    y += 10;
+
+    var usedP = [];
+    blocks.forEach(function (b) {
+      if (b.type === "h1") return;
+      if (b.type === "h2") {
+        if (y > H - M - 40) { doc.addPage(); y = M; } else y += 7;
+        doc.setFont("times", "bold"); doc.setFontSize(17); color(INK);
+        doc.splitTextToSize(latin(plain(b.segs)), CW).forEach(function (l) { room(8); doc.text(l, M, y); y += 7.5; });
+        doc.setDrawColor(ACC[0], ACC[1], ACC[2]); doc.setLineWidth(0.7); doc.line(M, y - 4.5, M + 12, y - 4.5);
+        y += 2.5; return;
+      }
+      if (b.type === "ul") {
+        b.items.forEach(function (it) {
+          room(LH * 2);
+          doc.setFillColor(ACC[0], ACC[1], ACC[2]); doc.circle(M + 1.6, y - 1.3, 0.55, "F");
+          flow(it, M + 5.5, CW - 5.5, allItalic(it) ? MUT : INK);
+          y += 1.2;
+        });
+        y += 2.5; return;
+      }
+      var txt = plain(b.segs).trim();
+      var sp = secOf(txt, usedP);
+      if (sp >= 0) {
+        y += 3; room(14);
+        doc.setFont("times", "bold"); doc.setFontSize(12); color(INK);
+        doc.text(latin(SECS[sp][0]), M, y); y += 6.5;
+      }
+      if (/^ejemplo:?$/i.test(txt)) {
+        y += 1; doc.setFont("helvetica", "bold"); doc.setFontSize(8); color(MUT); room(8);
+        doc.text("EJEMPLO", M, y); y += 5.5; return;
+      }
+      if (allItalic(b.segs)) { flow(b.segs, M + 5, CW - 5, MUT); y += 2.5; return; }
+      flow(b.segs, M, CW, INK); y += 2.5;
+    });
+
+    var n = doc.getNumberOfPages();
+    for (var p = 1; p <= n; p++) {
+      doc.setPage(p); doc.setFont("helvetica", "normal"); doc.setFontSize(8); color(MUT);
+      doc.text("Canvas de Equipos que Enamoran", M, H - 12);
+      doc.text(p + " / " + n, W - M, H - 12, { align: "right" });
+    }
+    return doc.output("blob");
+  }
+
+  document.getElementById("btn-guide").addEventListener("click", async function () {
+    var btn = this; busy(btn, true); say("Armando el PDF de la guía…");
+    try {
+      var dl = await claude.use("downloads");
+      if (!dl) { say("Las descargas no están disponibles en esta vista. Abrí la página en claude.ai para bajar el PDF.", true); return; }
+      var blob = buildGuidePdf();
+      await dl.save({ filename: "guia-canvas-equipos-que-enamoran.pdf", data: blob });
+      say("Guía guardada.");
+    } catch (e) { say(errMsg(e, "la guía"), true); }
+    finally { busy(btn, false); }
+  });
+
+  /* Canvas: se exporta desde el Google Slides original, con la cuenta de quien mira la página */
+  function b64ToBytes(b64) {
+    var bin = atob(b64), u = new Uint8Array(bin.length);
+    for (var k = 0; k < bin.length; k++) u[k] = bin.charCodeAt(k);
+    return u;
+  }
+  document.getElementById("btn-canvas").addEventListener("click", async function () {
+    var btn = this; busy(btn, true); say("Pidiendo el canvas a Google Drive…");
+    try {
+      var dl = await claude.use("downloads"), mcp = await claude.use("mcp");
+      if (!dl || !mcp) { say("Desde acá no puedo exportar el canvas. Abrilo en Google Slides y usá Archivo > Descargar > PDF.", true); return; }
+      var r = await mcp.callTool("Google Drive", "download_file_content", { fileId: DRIVE_ID, exportMimeType: "application/pdf" });
+      var p = r && r.payload;
+      if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) {} }
+      var b64 = p && p.content;
+      if (!b64 || typeof b64 !== "string") throw { code: "empty" };
+      await dl.save({ filename: "canvas-equipos-que-enamoran.pdf", data: b64ToBytes(b64) });
+      say("Canvas guardado.");
+    } catch (e) {
+      var c = e && e.code;
+      if (c === "tool_error" || c === "empty" || c === "server_not_connected" || c === "needs_reauth" || c === "upstream_error")
+        say("No pude exportar el canvas desde Google Drive con tu cuenta. Abrilo en Google Slides y usá Archivo > Descargar > PDF.", true);
+      else say(errMsg(e, "el canvas"), true);
+    } finally { busy(btn, false); }
+  });
+})();
+</script>
+<script>
+(function () {
+  var SECS = [
+    { id: "proposito", t: "Propósito", q: "¿Para qué existimos? ¿Cuál es nuestra razón de ser y cómo creamos valor para clientes, usuarios o beneficiarios?", ex: "Somos el equipo que acompaña a la organización en su transición hacia una cultura más colaborativa, ágil y consciente." },
+    { id: "objetivos", t: "Objetivos", q: "¿Qué quiere lograr el equipo? Un objetivo factible, medible y con plazo. Pensá a 3 años, al año y a 3 o 4 meses.", ex: "Consolidar una red interna de agentes de cambio. Resultado clave: certificar al menos 60 personas en 3 años." },
+    { id: "iniciativas", t: "Iniciativas y proyectos", q: "¿Qué hacemos para lograr esos objetivos? ¿Cuáles son nuestras principales iniciativas, procesos y proyectos?", ex: "Mapa de Rituales: diagnóstico y rediseño participativo de los rituales que marcan la experiencia diaria del equipo." },
+    { id: "personas", t: "Personas y roles", q: "¿Quiénes forman el equipo y qué rol ocupa cada persona? ¿Qué se espera de cada una?", ex: "Tomás facilita los workshops y también nuestras reuniones." },
+    { id: "capacidades", t: "Capacidades y herramientas", q: "¿Qué competencias y habilidades necesitamos para lograr los objetivos? ¿Con qué herramientas contamos o deberíamos contar?", ex: "Facilitación participativa, diseño de experiencias de aprendizaje y medición de impacto cultural." },
+    { id: "principios", t: "Principios", q: "¿Qué invitaciones y recordatorios nos queremos hacer para vivir lo que valoramos?", ex: "Pide lo que necesitas, ofrece lo que tienes." },
+    { id: "acuerdos", t: "Acuerdos", q: "¿Qué información compartimos, por qué canales, qué reuniones tenemos, cómo decidimos y cómo celebramos?", ex: "Reunión de sincro cada lunes de 11 a 12, con espacio de check-in." },
+    { id: "bienestar", t: "Bienestar", q: "¿Cómo cuidamos de nosotros y de los otros? ¿Qué necesita cada persona para estar bien?", ex: "Escala semanal de energía de 1 a 5, y apoyo para quien está en 1 o 2." },
+    { id: "aprendizaje", t: "Aprendizaje", q: "¿Cómo recibimos feedback de los usuarios, mejoramos de forma continua y aprendemos de los errores?", ex: "Retrospectivas cada dos meses para revisar nuestros proyectos." }
+  ];
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function normCode(s) { return String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); }
+  function showCode(c) { return c.length > 3 ? c.slice(0, 3) + "-" + c.slice(3) : c; }
+  function genCode() {
+    var a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", out = "", buf = new Uint32Array(6);
+    window.crypto.getRandomValues(buf);
+    for (var i = 0; i < 6; i++) out += a[buf[i] % a.length];
+    return out;
+  }
+  function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+  var tt;
+  function toast(m) { var t = $("b-toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(function () { t.hidden = true; }, 2800); }
+  function err(m) { $("b-err").textContent = m || ""; }
+
+  /* ---------- Vistas ---------- */
+  function go(v) {
+    $("v-guide").hidden = v !== "guide"; $("v-build").hidden = v !== "build";
+    window.scrollTo(0, 0);
+    try { history.replaceState(null, "", v === "build" ? "#armar" : "#"); } catch (e) {}
+    if (v === "build") init();
+  }
+  document.addEventListener("click", function (e) {
+    var g = e.target.closest("[data-go]"); if (!g) return;
+    e.preventDefault(); go(g.getAttribute("data-go"));
+  });
+  setTimeout(function () { if (location.hash === "#armar") go("build"); }, 0);
+
+  /* ---------- Estado ---------- */
+  var S = { db: null, user: null, uid: null, canWrite: true, code: null, name: "", snap: [], pend: {}, gone: {}, edits: {}, unsub: null, editing: null, armed: null, timer: null, loaded: false, created: false, started: false };
+
+  async function init() {
+    if (S.started) { return; }
+    S.started = true;
+    try {
+      var r = await Promise.all([claude.use("db"), claude.use("user")]);
+      S.db = r[0]; S.user = r[1];
+      if (!S.db) { err("El almacenamiento compartido no está disponible. Abrí esta página con tu sesión de claude.ai."); return; }
+      if (S.user) {
+        try { S.uid = await S.user.id(); } catch (e) {}
+        if (S.user.can) { var cw = S.user.can("data.write"); S.canWrite = cw === false ? false : true; }
+      }
+    } catch (e) { err("Para armar un canvas hace falta el almacenamiento de Claude. Abrí la página desde claude.ai."); }
+  }
+
+
+  function dbMsg(e) {
+    var c = e && e.code;
+    if (c === "invalid_argument" || c === "not_granted") return "No pudiste guardar. Para escribir hace falta acceso de Contributor al artefacto.";
+    if (c === "quota_exceeded") return "El almacenamiento está lleno.";
+    if (c === "resource_exhausted") return "Demasiadas acciones seguidas. Esperá un momento.";
+    return (e && e.message) || "No se pudo completar la acción.";
+  }
+
+  $("f-create").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    if (!S.db) { err("El almacenamiento no está disponible todavía. Probá de nuevo en un momento."); return; }
+    var name = $("in-name").value.trim();
+    if (name.length < 2) { err("Escribí el nombre del equipo (mínimo 2 letras)."); $("in-name").focus(); return; }
+    $("b-create").disabled = true; err("");
+    try {
+      var code = null;
+      for (var i = 0; i < 6 && !code; i++) { var c = genCode(); var s = await S.db.doc("canvases/" + c).get(); if (!s.exists) code = c; }
+      if (!code) throw new Error("No pude generar un código libre. Probá de nuevo.");
+      await S.db.doc("canvases/" + code).set({ name: name, createdAt: new Date().toISOString(), by: S.uid || null });
+      S.created = true;
+      await enter(code, name);
+    } catch (ex) { err(dbMsg(ex)); }
+    $("b-create").disabled = false;
+  });
+  $("f-join").addEventListener("submit", function (e) { e.preventDefault(); enter($("in-code").value); });
+
+  async function enter(raw, knownName) {
+    var code = normCode(raw);
+    if (code.length < 4) { err("El código tiene al menos 4 caracteres."); return; }
+    if (!S.db) { err("El almacenamiento no está disponible todavía. Probá de nuevo en un momento."); return; }
+    err("");
+    try {
+      var s = await S.db.doc("canvases/" + code).get();
+      if (!s.exists) { S.created = false; err("No hay un canvas con ese código. Revisá que esté bien escrito."); return; }
+      S.code = code; S.name = knownName || (s.data() || {}).name || code;
+    } catch (ex) { err(dbMsg(ex)); return; }
+    S.snap = []; S.pend = {}; S.gone = {}; S.edits = {}; S.editing = null; S.loaded = false;
+    showApp(); subscribe();
+  }
+
+  function showApp() {
+    $("b-land").hidden = true; $("b-app").hidden = false;
+    $("b-name").textContent = S.name;
+    $("b-chip").textContent = showCode(S.code);
+    $("b-notice").hidden = !S.created;
+    $("b-newcode").textContent = showCode(S.code);
+    $("b-ro").hidden = S.canWrite;
+    $("b-live").textContent = "Sincronizando…";
+    $("b-board").innerHTML = SECS.map(function (s) {
+      return '<section class="bs" data-sec="' + s.id + '" aria-labelledby="h-' + s.id + '"><h3 id="h-' + s.id + '">' + esc(s.t) + '</h3><p class="q">' + esc(s.q) + '</p>' +
+        '<ul class="bn" id="n-' + s.id + '"></ul>' +
+        (S.canWrite ? '<form class="badd" data-sec="' + s.id + '" autocomplete="off"><label class="sr" for="a-' + s.id + '">Sumar una idea a ' + esc(s.t) + '</label><input class="b-in" id="a-' + s.id + '" type="text" maxlength="400" placeholder="Sumá una idea…"><button class="btn sm" type="submit">Agregar</button></form>' : "") +
+        "</section>";
+    }).join("");
+    renderAll();
+    window.scrollTo(0, 0);
+  }
+
+  function leave() {
+    if (S.unsub) { S.unsub(); S.unsub = null; }
+    clearTimeout(S.timer);
+    S.code = null; S.created = false; S.snap = [];
+    $("b-app").hidden = true; $("b-land").hidden = false;
+  }
+  $("b-leave").addEventListener("click", leave);
+  $("b-chip").addEventListener("click", copyCode);
+  $("b-copy2").addEventListener("click", copyCode);
+  $("b-ok").addEventListener("click", function () { S.created = false; $("b-notice").hidden = true; });
+  function copyCode() {
+    var t = showCode(S.code);
+    try { navigator.clipboard.writeText(t).then(function () { toast("Código copiado"); }, function () { toast("Copiá el código: " + t); }); }
+    catch (e) { toast("Copiá el código: " + t); }
+  }
+
+  /* ---------- Datos en vivo ---------- */
+  function subscribe() {
+    if (S.unsub) S.unsub();
+    clearTimeout(S.timer);
+    S.timer = setTimeout(function () { if (!S.loaded) $("b-live").textContent = "Sin respuesta todavía. Sigue intentando; no hace falta recargar."; }, 10000);
+    S.unsub = S.db.collection("canvases/" + S.code + "/notes").onSnapshot(function (snap) {
+      var have = {};
+      S.snap = snap.docs.map(function (d) { var x = d.data() || {}; x.id = d.id; have[d.id] = 1; return x; });
+      Object.keys(S.pend).forEach(function (id) { if (have[id]) delete S.pend[id]; });
+      Object.keys(S.gone).forEach(function (id) { if (!have[id]) delete S.gone[id]; });
+      S.snap.forEach(function (n) { if (S.edits[n.id] !== undefined && S.edits[n.id] === n.text) delete S.edits[n.id]; });
+      S.loaded = true; clearTimeout(S.timer);
+      $("b-live").textContent = "Guardado y sincronizado";
+      renderAll();
+    }, function (e) { $("b-live").textContent = dbMsg(e); });
+  }
+  function notes() {
+    var list = S.snap.filter(function (n) { return !S.gone[n.id]; }).map(function (n) { return S.edits[n.id] !== undefined ? Object.assign({}, n, { text: S.edits[n.id] }) : n; });
+    Object.keys(S.pend).forEach(function (id) { if (!list.some(function (n) { return n.id === id; })) list.push(S.pend[id]); });
+    return list.sort(function (a, b) { return String(a.at).localeCompare(String(b.at)); });
+  }
+  function renderAll() {
+    if (!S.code) return;
+    var all = notes(), filled = 0;
+    SECS.forEach(function (s) {
+      var mine = all.filter(function (n) { return n.sec === s.id; });
+      if (mine.length) filled++;
+      if (S.editing && mine.some(function (n) { return n.id === S.editing; })) return;
+      var ul = $("n-" + s.id); if (!ul) return;
+      ul.innerHTML = mine.length ? mine.map(function (n) {
+        return '<li data-id="' + esc(n.id) + '"><span class="nt"' + (S.canWrite ? ' tabindex="0" role="button" data-act="edit" data-id="' + esc(n.id) + '"' : "") + ">" + esc(n.text) + "</span>" +
+          (S.canWrite ? '<button class="x' + (S.armed === n.id ? " arm" : "") + '" type="button" data-act="del" data-id="' + esc(n.id) + '" aria-label="Quitar esta idea">' + (S.armed === n.id ? "¿Quitar?" : "Quitar") + "</button>" : "") + "</li>";
+      }).join("") : '<li class="ex"><span class="exl">Ejemplo</span>' + esc(s.ex) + "</li>";
+    });
+    $("b-prog").textContent = filled + " de " + SECS.length + " secciones con ideas";
+    $("b-barfill").style.width = Math.round(filled / SECS.length * 100) + "%";
+  }
+
+  /* ---------- Acciones ---------- */
+  $("b-board").addEventListener("submit", async function (e) {
+    var f = e.target.closest(".badd"); if (!f) return;
+    e.preventDefault();
+    var inp = f.querySelector("input"), text = inp.value.trim();
+    if (!text) return;
+    var sec = f.getAttribute("data-sec"), n = { sec: sec, text: text, at: new Date().toISOString(), by: S.uid || null };
+    inp.value = "";
+    try {
+      var ref = await S.db.collection("canvases/" + S.code + "/notes").add(n);
+      var tmp = Object.assign({ id: ref.id }, n);
+      if (!S.snap.some(function (x) { return x.id === ref.id; })) S.pend[ref.id] = tmp;
+      renderAll();
+    } catch (ex) { inp.value = text; toast(dbMsg(ex)); }
+  });
+  $("b-board").addEventListener("click", async function (e) {
+    var el = e.target.closest("[data-act]"); if (!el) return;
+    var id = el.getAttribute("data-id"), act = el.getAttribute("data-act");
+    if (act === "edit") startEdit(id);
+    else if (act === "del") {
+      if (S.armed !== id) { S.armed = id; renderAll(); setTimeout(function () { if (S.armed === id) { S.armed = null; renderAll(); } }, 3000); return; }
+      S.armed = null; S.gone[id] = 1; delete S.pend[id]; renderAll();
+      try { await S.db.doc("canvases/" + S.code + "/notes/" + id).delete(); }
+      catch (ex) { delete S.gone[id]; renderAll(); toast(dbMsg(ex)); }
+    } else if (act === "save") saveEdit(id);
+    else if (act === "cancel") endEdit();
+  });
+  $("b-board").addEventListener("keydown", function (e) {
+    var ed = e.target.closest && e.target.closest("textarea[data-edit]");
+    if (ed) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(ed.getAttribute("data-edit")); }
+      else if (e.key === "Escape") { e.preventDefault(); endEdit(); }
+      return;
+    }
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[data-act="edit"]')) { e.preventDefault(); startEdit(e.target.getAttribute("data-id")); }
+  });
+  function startEdit(id) {
+    if (S.editing) endEdit();
+    var n = notes().filter(function (x) { return x.id === id; })[0]; if (!n) return;
+    S.editing = id;
+    var li = $("n-" + n.sec).querySelector('li[data-id="' + id.replace(/"/g, "") + '"]'); if (!li) return;
+    li.className = "edit";
+    li.innerHTML = '<textarea data-edit="' + esc(id) + '" maxlength="400" aria-label="Editar idea">' + esc(n.text) + '</textarea><div class="b-row"><button class="btn sm primary" type="button" data-act="save" data-id="' + esc(id) + '">Guardar</button><button class="btn sm quiet" type="button" data-act="cancel">Cancelar</button></div>';
+    var ta = li.querySelector("textarea"); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+  }
+  function endEdit() { S.editing = null; renderAll(); }
+  async function saveEdit(id) {
+    var ta = $("b-board").querySelector('textarea[data-edit]'); if (!ta) return;
+    var text = ta.value.trim();
+    if (!text) { endEdit(); return; }
+    S.edits[id] = text; S.editing = null; renderAll();
+    try { await S.db.doc("canvases/" + S.code + "/notes/" + id).update({ text: text }); }
+    catch (ex) { delete S.edits[id]; renderAll(); toast(dbMsg(ex)); }
+  }
+
+  /* ---------- PDF del canvas del equipo ---------- */
+  function latin(s) { return String(s).replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, "-").replace(/…/g, "...").replace(/≥/g, ">=").replace(/[^\u0000-ÿ]/g, ""); }
+  $("b-pdf").addEventListener("click", async function () {
+    var btn = this; btn.disabled = true;
+    try {
+      var dl = await claude.use("downloads");
+      if (!dl) { toast("Las descargas no están disponibles en esta vista."); return; }
+      var doc = new window.jspdf.jsPDF({ unit: "mm", format: "a4" });
+      var W = 210, H = 297, M = 20, CW = W - 2 * M, y = M;
+      function room(h) { if (y + h > H - M) { doc.addPage(); y = M; } }
+      doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(90, 100, 117); doc.text("CANVAS DEL EQUIPO", M, y); y += 11;
+      doc.setFont("times", "bold"); doc.setFontSize(26); doc.setTextColor(27, 34, 48);
+      doc.splitTextToSize(latin(S.name), CW).forEach(function (l) { doc.text(l, M, y); y += 11; });
+      doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(90, 100, 117);
+      doc.text("Codigo " + showCode(S.code) + "  -  " + new Date().toLocaleDateString("es"), M, y); y += 10;
+      var all = notes();
+      SECS.forEach(function (s) {
+        room(24); y += 4;
+        doc.setFont("times", "bold"); doc.setFontSize(15); doc.setTextColor(27, 34, 48); doc.text(latin(s.t), M, y);
+        doc.setDrawColor(179, 38, 75); doc.setLineWidth(0.7); doc.line(M, y + 2, M + 10, y + 2); y += 8;
+        var mine = all.filter(function (n) { return n.sec === s.id; });
+        doc.setFont("helvetica", "normal"); doc.setFontSize(10.5);
+        if (!mine.length) { doc.setTextColor(140, 148, 162); room(6); doc.text("Sin ideas todavia", M, y); y += 6; return; }
+        doc.setTextColor(27, 34, 48);
+        mine.forEach(function (n) {
+          var lines = doc.splitTextToSize(latin(n.text), CW - 6);
+          room(lines.length * 5 + 2);
+          doc.setFillColor(179, 38, 75); doc.circle(M + 1.4, y - 1.2, 0.55, "F");
+          lines.forEach(function (l) { doc.text(l, M + 5, y); y += 5; });
+          y += 1.5;
+        });
+      });
+      var pc = doc.getNumberOfPages();
+      for (var p = 1; p <= pc; p++) { doc.setPage(p); doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(90, 100, 117); doc.text(p + " / " + pc, W - M, H - 12, { align: "right" }); }
+      await dl.save({ filename: "canvas-" + (S.name.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "equipo") + ".pdf", data: doc.output("blob") });
+      toast("Canvas guardado");
+    } catch (e) { if (!e || e.code !== "declined") toast("No pude armar el PDF. Probá de nuevo."); }
+    finally { btn.disabled = false; }
+  });
+})();
+</script>

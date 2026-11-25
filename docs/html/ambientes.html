@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Ambientes · Leadership Lab</title>
+<meta name="description" content="Documentación técnica de Leadership Lab: stack, arquitectura, ambientes, base de datos, desarrollo, pruebas y despliegue.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="brand" href="index.html">Leadership Lab <span>Documentación</span></a>
+  <button type="button" class="theme-btn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema"></button>
+</header>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Documentación">
+    <div class="search">
+      <input type="search" id="q" placeholder="Buscar en la documentación" aria-label="Buscar en la documentación" autocomplete="off">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+    <ul class="nav"><li><a href="index.html"><span class="nav-label">Inicio</span><span class="nav-hint">Qué es y cómo arrancar</span></a></li><li><a href="stack-tecnologico.html"><span class="nav-label">Stack tecnológico</span><span class="nav-hint">Qué usa cada capa y cada app</span></a></li><li><a href="arquitectura.html"><span class="nav-label">Arquitectura</span><span class="nav-hint">Cómo encaja todo</span></a></li><li><a href="ambientes.html" aria-current="page"><span class="nav-label">Ambientes</span><span class="nav-hint">dev, test y prod</span></a></li><li><a href="base-de-datos.html"><span class="nav-label">Base de datos</span><span class="nav-hint">Una D1, tablas y migraciones</span></a></li><li><a href="desarrollo.html"><span class="nav-label">Desarrollo</span><span class="nav-hint">Requisitos y flujo de trabajo</span></a></li><li><a href="pruebas.html"><span class="nav-label">Pruebas</span><span class="nav-hint">Niveles y cómo correrlos</span></a></li><li><a href="despliegue.html"><span class="nav-label">Despliegue</span><span class="nav-hint">Publicar en Cloudflare</span></a></li></ul>
+    <p class="side-foot">Generado desde los archivos <code>.md</code>.<br>Para cambiarlo, editá el markdown y corré <code>make docs</code>.</p>
+  </nav>
+  <main id="contenido" class="content">
+    <article class="doc">
+<h1 id="ambientes">Ambientes</h1>
+<p>Hay tres ambientes, definidos en un solo archivo: <span class="repo-file" title="Archivo del repositorio: config/environments.json"><code>config/environments.json</code></span>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>dev</strong> (desarrollo)</th>
+<th><strong>test</strong> (pruebas)</th>
+<th><strong>prod</strong> (producción)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Para qué</td>
+<td>Programar y mirar cambios</td>
+<td>Correr la suite y probar a mano con datos limpios</td>
+<td>Lo que usa la gente</td>
+</tr>
+<tr>
+<td>Dónde corre</td>
+<td>Tu máquina</td>
+<td>Tu máquina</td>
+<td>Cloudflare</td>
+</tr>
+<tr>
+<td>URL</td>
+<td><a href="http://localhost:8090/" target="_blank" rel="noopener">http://localhost:8090/</a></td>
+<td><a href="http://localhost:8190/" target="_blank" rel="noopener">http://localhost:8190/</a></td>
+<td><a href="https://leadership-lab.pages.dev/" target="_blank" rel="noopener">https://leadership-lab.pages.dev/</a></td>
+</tr>
+<tr>
+<td>Base de datos</td>
+<td>local, persiste</td>
+<td>local, <strong>se borra en cada arranque</strong></td>
+<td>D1 <code>leadership-lab</code></td>
+</tr>
+<tr>
+<td>Clave de admin</td>
+<td><code>ADMIN_KEY_DEV</code> (por defecto <code>dev-admin-key</code>)</td>
+<td><code>ADMIN_KEY_TEST</code> (por defecto <code>test-admin-key</code>)</td>
+<td><code>ADMIN_KEY_PROD</code> (obligatoria, 12+ caracteres)</td>
+</tr>
+<tr>
+<td>Comando</td>
+<td><code>make dev</code></td>
+<td><code>make test</code> o <code>make up ENV=test</code></td>
+<td><code>make deploy ENV=prod</code></td>
+</tr>
+<tr>
+<td>Feedback</td>
+<td>formulario de Tally</td>
+<td>formulario de Tally</td>
+<td>formulario de Tally (configurable)</td>
+</tr>
+</tbody></table></div>
+<p>Los tres son <strong>el mismo código</strong>. Lo único que cambia entre ambientes son dos archivos generados al armar (<code>wrangler.toml</code> y <code>public/env.js</code>), a partir de esta configuración.</p>
+<h2 id="como-se-define-un-ambiente">Cómo se define un ambiente<a class="anchor" href="#como-se-define-un-ambiente" aria-label="Enlace a esta sección">#</a></h2>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">json</span><pre><code>&quot;test&quot;: {
+  &quot;target&quot;: &quot;local&quot;,                          // &quot;local&quot; o &quot;cloudflare&quot;
+  &quot;feedback_form_url&quot;: &quot;https://tally.so/embed/…&quot;,  // formulario de feedback (Tally); vacío = sin botón
+  &quot;local&quot;:      { &quot;port&quot;: 8190, &quot;data_dir&quot;: &quot;.local/test&quot;, &quot;reset_on_up&quot;: true },
+  &quot;cloudflare&quot;: { &quot;pages_project&quot;: &quot;leadership-lab-test&quot;, &quot;d1_database&quot;: &quot;leadership-lab-test&quot;, &quot;d1_id&quot;: &quot;&quot;, &quot;kv_id&quot;: &quot;&quot;, &quot;url&quot;: &quot;https://leadership-lab-test.pages.dev&quot; }
+}
+</code></pre></div>
+<p>Cada ambiente trae los dos bloques. <strong><code>target</code></strong> decide dónde corre.</p>
+<h2 id="pasar-pruebas-a-cloudflare">Pasar &quot;pruebas&quot; a Cloudflare<a class="anchor" href="#pasar-pruebas-a-cloudflare" aria-label="Enlace a esta sección">#</a></h2>
+<p>Pruebas corre hoy en local. Para que corra en Cloudflare con el mínimo esfuerzo:</p>
+<ol>
+<li>En <code>config/environments.json</code>, cambiar <code>&quot;target&quot;: &quot;local&quot;</code> por <code>&quot;target&quot;: &quot;cloudflare&quot;</code> en <code>test</code>.</li>
+<li><code>make cloudflare-bootstrap ENV=test</code>: crea el proyecto Pages, la D1 y el KV propios (<code>leadership-lab-test</code>) y guarda sus ids.</li>
+<li>Definir <code>ADMIN_KEY_TEST</code> (12+ caracteres) en <code>.env</code>.</li>
+<li><code>make deploy ENV=test</code>.</li>
+</ol>
+<p>La base de pruebas en Cloudflare queda separada de producción. <code>make test</code> seguiría corriendo en local si volvés a poner <code>&quot;target&quot;: &quot;local&quot;</code>.</p>
+<h2 id="claves-de-administrador">Claves de administrador<a class="anchor" href="#claves-de-administrador" aria-label="Enlace a esta sección">#</a></h2>
+<ul>
+<li>Protegen <code>/app-admin/</code> y <code>/&lt;app&gt;/admin/</code>.</li>
+<li>En local las inyecta <code>scripts/local.sh</code> desde <code>.env</code>.</li>
+<li>En Cloudflare son el secreto <code>APP_ADMIN_CLAVE</code> de cada proyecto Pages; <code>make deploy</code> lo carga desde <code>ADMIN_KEY_&lt;AMBIENTE&gt;</code>.</li>
+<li><code>.env</code> está ignorado por git. Solo se versiona <code>.env.example</code>.</li>
+</ul>
+
+    </article>
+    <nav class="pager" aria-label="Páginas"><a class="prev" href="arquitectura.html"><small>Anterior</small>Arquitectura</a><a class="next" href="base-de-datos.html"><small>Siguiente</small>Base de datos</a></nav>
+    <footer class="credit">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></footer>
+  </main>
+  <aside class="toc" aria-label="En esta página"><p>En esta página</p><ul><li class="l2"><a href="#como-se-define-un-ambiente">Cómo se define un ambiente</a></li><li class="l2"><a href="#pasar-pruebas-a-cloudflare">Pasar &quot;pruebas&quot; a Cloudflare</a></li><li class="l2"><a href="#claves-de-administrador">Claves de administrador</a></li></ul></aside>
+</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/docs.js"></script>
+
+</body>
+</html>

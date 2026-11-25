@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Guía de retros, canvas descargable y un simulador de retro compartido con código, para equipos que quieren aprender de cada ciclo.">
+<title>Retro de Equipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root { color-scheme: light; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+/*BASE_CSS*/
+
+/* Retro de Equipo */
+.pill { display: inline-flex; align-items: center; font: 500 12px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; padding: 6px 9px; border-radius: 999px; border: 1.5px solid var(--ink-2); color: var(--ink); white-space: nowrap; }
+.pill.l-producto { border-color: var(--accent); color: var(--accent); }
+.pill.l-proceso { border-color: var(--ink-2); color: var(--ink-2); }
+.pill.l-equipo { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.lenses { display: grid; gap: 10px; grid-template-columns: 1fr; margin: 0 0 1.6em; padding: 0; list-style: none; }
+@media (min-width: 640px) { .lenses { grid-template-columns: repeat(3, 1fr); } }
+.lenses li { background: var(--surface); border: 1px solid var(--rule); padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.lenses li p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
+.phases { list-style: none; margin: 0 0 1.6em; padding: 0; display: grid; gap: 14px; }
+.phases > li { display: grid; grid-template-columns: 2.6em 1fr; gap: 6px 14px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.phases .n { font-family: var(--f-display); font-size: 2rem; line-height: 1; color: var(--accent); }
+.phases h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.35rem; line-height: 1.15; }
+.phases .q { margin: 4px 0 8px; font-weight: 600; font-size: 15px; }
+.phases p { margin: 0 0 .6em; }
+.phases .ex { font-size: 14px; color: var(--ink-2); margin: 0; }
+blockquote.dir { margin: 0 0 1.4em; padding: 18px 20px; background: var(--accent-soft); font-family: var(--f-display); font-size: 1.25rem; line-height: 1.45; }
+blockquote.dir cite { display: block; margin-top: 10px; font: 500 12px/1.3 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); font-style: normal; }
+.agenda { width: 100%; border-collapse: collapse; margin: 0 0 1.4em; font-size: 15px; }
+.agenda th, .agenda td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.agenda th { font: 500 12px/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.agenda td:first-child { font-family: var(--f-mono); white-space: nowrap; }
+.tbl-wrap { overflow-x: auto; }
+
+/* simulador */
+.stp { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 18px; }
+.stp button { appearance: none; cursor: pointer; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--rule); border-radius: 4px; padding: 10px 10px 12px; display: grid; gap: 4px; min-width: 0; }
+.stp button .k { font: 500 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.stp button .t { font-weight: 600; font-size: 14px; line-height: 1.25; overflow-wrap: anywhere; }
+.stp button:hover { border-color: var(--ink-2); }
+.stp button.done { background: var(--accent-soft); }
+.stp button.now { border-color: var(--accent); box-shadow: inset 0 -4px 0 var(--accent); }
+.stp button.now .k { color: var(--accent); }
+@media (max-width: 720px) { .stp { grid-template-columns: repeat(5, minmax(96px, 1fr)); overflow-x: auto; padding-bottom: 4px; } }
+.fac { display: grid; gap: 18px; background: var(--surface); border: 1px solid var(--rule); border-top: 3px solid var(--accent); padding: 20px; margin-top: 14px; }
+@media (min-width: 860px) { .fac { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 32px; } }
+.fac h3 { font-family: var(--f-display); font-weight: 400; font-size: 1.7rem; line-height: 1.1; margin: 0 0 4px; }
+.fac .q { margin: 0 0 12px; font-weight: 600; }
+.fac .say { margin: 0 0 14px; color: var(--ink-2); font-size: 15px; line-height: 1.55; }
+.fmt { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 15px; }
+.fmt b { font-weight: 600; }
+.tmr { display: grid; gap: 10px; align-content: start; }
+.tmr .clock { font-family: var(--f-mono); font-size: 3rem; line-height: 1; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.tmr .clock.end { color: var(--accent); }
+.nav { display: flex; flex-wrap: wrap; gap: 10px; }
+.rb { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); margin-top: 18px; }
+@media (min-width: 720px) { .rb { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .rb { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.rb .bs.cur { border-top-color: var(--accent); }
+.rb .bs.cur h3::after { content: "Ahora"; margin-left: 10px; font: 500 11px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); vertical-align: middle; }
+.rb .bn li { grid-template-columns: 1fr; gap: 8px; }
+.rb .bn li .row { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.rb .bn li.edit { grid-template-columns: 1fr; }
+.vt { appearance: none; cursor: pointer; font: 500 13px/1 var(--f-mono); color: var(--ink); background: transparent; border: 1.5px solid var(--rule); border-radius: 999px; padding: 6px 10px; min-width: 52px; }
+.vt:hover { border-color: var(--ink); }
+.vt.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.rb .bn .x { margin-left: auto; }
+.flt { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 16px; }
+.flt button { appearance: none; cursor: pointer; font: 500 13px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink); background: transparent; border: 1.5px solid var(--rule); border-radius: 999px; padding: 9px 13px; }
+.flt button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.flt .lbl { font: 500 12px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-right: 4px; }
+.badd { flex-wrap: wrap; }
+.badd select { font: 500 13px/1 var(--f-body); color: var(--ink); background: var(--bg); border: 1.5px solid var(--rule); border-radius: 4px; padding: 10px 8px; }
+.badd .b-in { flex: 1 1 120px; }
+.hint { margin: 0; font-size: 14px; color: var(--ink-2); }
+.b-wrap { padding-block: 28px 80px; }
+@media print { .rail, .actions { display: none; } }
+.b-demo-link{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:18px 0 0;color:var(--ink-2)}
+.vt.vs{display:inline-block;cursor:default}
+.vt.vs:hover{border-color:var(--rule)}
+.b-panel p.b-acme-line{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:14px;margin:0}
+</style>
+</head>
+<body>
+
+<div id="v-guide">
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Guía, canvas y simulador</p>
+    <h1>Una retro para <em>aprender</em></h1>
+    <p class="sub">Una pausa del equipo para mirar lo que pasó y decidir qué probar en el próximo ciclo</p>
+    <ul class="facts">
+      <li><b>4</b> fases</li>
+      <li><b>3</b> miradas: producto, proceso y equipo</li>
+      <li><b>60 a 90 min</b> por retro</li>
+    </ul>
+    <div>
+      <div class="actions">
+        <button class="btn primary" type="button" data-go="build">Armar la retro de mi equipo</button>
+        <button class="btn" id="btn-blank" type="button">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10M6 9.5l4 4 4-4M4 16.5h12"/></svg>
+          Descargar el canvas de la retro (PDF)
+        </button>
+        <a class="link" href="#guia">Leer la guía</a>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap" id="guia">
+  <div class="layout">
+    <nav class="rail" aria-label="Contenido de la guía">
+      <details id="d-toc" open><summary>En esta guía</summary><ul id="toc"></ul></details>
+    </nav>
+    <article id="guide" aria-label="Guía de retros">
+<p>Con frecuencia nos detenemos a revisar nuestros acuerdos. La retro es esa pausa: miramos qué pasó, aprendemos de eso y decidimos qué vamos a probar distinto en el próximo ciclo. Es un hábito corto que se repite, no un evento especial.</p>
+<p>Esta guía acompaña al Team Canvas. El canvas deja por escrito cómo queremos trabajar. La retro revisa, cada ciclo, si lo estamos cumpliendo y qué hay que ajustar. Un ritmo posible es una retro por ciclo de 90 días.</p>
+
+<h2 id="s-aprendemos">De qué aprendemos</h2>
+<p>En cada retro miramos tres cosas. Conviene que cada nota diga a cuál pertenece.</p>
+<ul class="lenses">
+  <li><span class="pill l-producto">Producto</span><p>Lo que hacemos. Resultados, entregas, lo que recibe quien usa lo que hacemos.</p></li>
+  <li><span class="pill l-proceso">Proceso</span><p>Cómo lo estamos haciendo. Reuniones, herramientas, decisiones, tiempos.</p></li>
+  <li><span class="pill l-equipo">Equipo</span><p>Cómo estamos funcionando como equipo. Confianza, comunicación, ánimo.</p></li>
+</ul>
+
+<h2 id="s-directriz">La directriz</h2>
+<p>Antes de empezar se lee en voz alta. Marca el tono de toda la conversación.</p>
+<blockquote class="dir">Sin importar lo que descubramos, entendemos y creemos sinceramente que cada persona hizo el mejor trabajo que pudo, dado lo que sabía en ese momento, sus habilidades, los recursos disponibles y la situación en que estaba.<cite>Directriz de la retrospectiva · Norman Kerth, Project Retrospectives</cite></blockquote>
+
+<h2 id="s-fases">Las cuatro fases</h2>
+<ol class="phases">
+  <li><span class="n">1</span><div><h3>Capturar datos</h3><p class="q">¿Qué pasó?</p><p>Cada persona escribe hechos del ciclo, sin interpretarlos. Mientras más variados, mejor: cifras, momentos, mensajes, cosas que sorprendieron.</p><p class="ex">Formatos para probar: línea de tiempo del ciclo, Mad Sad Glad, las 4 L (me gustó, aprendí, faltó, deseé).</p></div></li>
+  <li><span class="n">2</span><div><h3>Reflexionar y aprender</h3><p class="q">¿Qué nos dicen los datos?</p><p>Se agrupan las notas parecidas y se buscan patrones. La pregunta es qué aprendimos, no quién tuvo la culpa.</p><p class="ex">Formatos para probar: 1-2-4-todos sobre los datos, cinco porqués, agrupar por temas.</p></div></li>
+  <li><span class="n">3</span><div><h3>Identificar desafíos</h3><p class="q">¿Qué nos está frenando?</p><p>Entre todo lo que apareció, se eligen uno o dos desafíos que de verdad pesan. Una votación rápida ayuda a decidir.</p><p class="ex">Formatos para probar: votación con puntos (tres por persona), ¿qué necesito de ti?, Troika Consulting.</p></div></li>
+  <li><span class="n">4</span><div><h3>Crear nuevos experimentos</h3><p class="q">¿Qué probamos en el próximo ciclo?</p><p>Cada desafío elegido se convierte en un experimento chico: qué haremos, quién lo lleva, hasta cuándo y cómo vamos a saber si funcionó. En la próxima retro se revisa.</p><p class="ex">Formatos para probar: empezar, parar, continuar; experimento en una línea («Creemos que…, si probamos…, veremos…»).</p></div></li>
+</ol>
+
+<h2 id="s-agenda">Cómo correr una retro</h2>
+<p>Una agenda de referencia para un equipo de 5 a 10 personas. Ajustala al tiempo que tengan.</p>
+<div class="tbl-wrap"><table class="agenda">
+  <thead><tr><th>Minutos</th><th>Momento</th><th>Qué se hace</th></tr></thead>
+  <tbody>
+    <tr><td>5-10</td><td>Apertura</td><td>Se lee la directriz. Cada persona dice una palabra sobre cómo llega.</td></tr>
+    <tr><td>15</td><td>1 · Capturar datos</td><td>Notas en silencio, después se leen en voz alta.</td></tr>
+    <tr><td>15</td><td>2 · Reflexionar y aprender</td><td>Agrupar, buscar patrones y escribir aprendizajes.</td></tr>
+    <tr><td>15</td><td>3 · Identificar desafíos</td><td>Votar y elegir uno o dos desafíos.</td></tr>
+    <tr><td>20</td><td>4 · Crear experimentos</td><td>Escribir los experimentos, con responsable y fecha.</td></tr>
+    <tr><td>5</td><td>Cierre</td><td>Descargar la retro y acordar cuándo se revisa.</td></tr>
+  </tbody>
+</table></div>
+<p>Alguien del equipo facilita y cuida los tiempos. Conviene que no sea siempre la misma persona.</p>
+
+<h2 id="s-ideas">Dónde buscar ideas</h2>
+<ul>
+  <li><strong>Retromat</strong> (retromat.org): un catálogo de actividades para retros, ordenadas por fase. Elegís una por fase y listo.</li>
+  <li><strong>Fun Retrospectives</strong> (funretrospectives.com): formatos creativos para que la retro no se vuelva una rutina.</li>
+  <li><strong>Liberating Structures</strong> (liberatingstructures.com): conversaciones en grupo que cualquier equipo puede usar, como 1-2-4-todos, Troika o ¿Qué necesito de ti?</li>
+  <li><strong>Agile Retrospectives</strong>, de Derby y Larsen: las cinco fases de una retro.</li>
+  <li><strong>Project Retrospectives</strong>, de Kerth: la directriz que leemos al abrir.</li>
+</ul>
+
+<h2 id="s-regla">Una regla práctica</h2>
+<p><strong>Cambiá el formato en cada ciclo. Mantené la directriz.</strong> El formato nuevo evita la rutina. La directriz sostiene la seguridad para decir lo que pasó.</p>
+
+<h2 id="s-simulador">Cómo usar el simulador</h2>
+<ul>
+  <li>Creá una retro con el nombre del equipo. Recibís un código de 6 caracteres para compartir.</li>
+  <li>Cada persona entra con el código, desde su celular o computadora, y suma notas a las cuatro columnas.</li>
+  <li>El panel de facilitación muestra la fase en curso, una pregunta, un formato sugerido y un temporizador. Cualquiera del equipo puede pasar a la fase siguiente.</li>
+  <li>Con el botón + se votan las notas. Una referencia: tres votos por persona.</li>
+  <li>Al final, descargás la retro en PDF con las notas ordenadas por votos.</li>
+</ul>
+<p class="hint">Todo queda guardado. Podés volver con el mismo código y seguir otro día.</p>
+    </article>
+  </div>
+</div>
+</div>
+
+<div id="v-build" hidden>
+  <div class="wrap">
+    <div class="b-top">
+      <span class="brand">Retro de Equipo</span>
+      <button class="btn sm quiet" type="button" data-go="guide">Volver a la guía</button>
+    </div>
+    <div class="b-wrap">
+      <section class="b-land" id="b-land" aria-labelledby="b-h">
+        <p class="eyebrow">Tu propia retro</p>
+        <h2 id="b-h">Corré la retro de tu equipo</h2>
+        <p class="lead">Creá una retro con el nombre de tu equipo y compartí el código. Todos suman notas en las cuatro fases, votan y siguen la facilitación. Queda guardado para volver.</p>
+        <div class="b-panels">
+          <form class="b-panel" id="f-create" autocomplete="off">
+            <h3>Crear una retro</h3>
+            <p>Ponele nombre a tu equipo y recibí un código para volver.</p>
+            <div class="b-row"><input class="b-in" id="in-name" type="text" maxlength="60" placeholder="Nombre del equipo" aria-label="Nombre del equipo"><button class="btn primary sm" id="b-create" type="submit">Crear</button></div>
+          </form>
+          <form class="b-panel" id="f-join" autocomplete="off">
+            <h3>Entrar con un código</h3>
+            <p>Si alguien de tu equipo ya creó la retro, pegá su código.</p>
+            <div class="b-row"><input class="b-in b-code" id="in-code" type="text" maxlength="8" placeholder="ABC-123" aria-label="Código de la retro"><button class="btn sm" id="b-join" type="submit">Entrar</button></div>
+            <p class="b-acme-line">¿Solo quieres ver cómo funciona? <button class="btn sm quiet" id="b-open-demo" type="button">Abrir el ejemplo de ACME</button></p>
+          </form>
+        </div>
+        <p class="b-err" id="b-err" role="alert"></p>
+      </section>
+
+      <section id="b-app" hidden>
+        <div class="b-head">
+          <div><p class="eyebrow">Retro del equipo</p><h2 id="b-name"></h2></div>
+          <div class="b-row">
+            <button class="b-chip" id="b-chip" type="button" aria-label="Copiar el código de la retro"></button>
+            <button class="btn sm" id="b-pdf" type="button">Descargar la retro (PDF)</button>
+            <button class="btn sm quiet" id="b-leave" type="button">Salir</button>
+          </div>
+        </div>
+        <div class="b-meta" style="margin-top:14px"><span id="b-prog"></span><span id="b-live">Sincronizando…</span></div>
+        <div class="b-notice" id="b-demo" hidden><span><b>Ejemplo ficticio de ACME.</b> Es de solo lectura.</span><button class="btn sm primary" id="b-mine" type="button">Armar la mía</button></div>
+        <div class="b-notice" id="b-notice" hidden><span>Retro creada. Usá «Copiar código» para que el equipo entre.</span><button class="btn sm" id="b-copy2" type="button">Copiar código</button><button class="btn sm quiet" id="b-ok" type="button">Entendido</button></div>
+        <div class="stp" id="stp" role="group" aria-label="Fases de la retro"></div>
+        <div class="fac" id="fac"></div>
+        <div class="flt" id="flt" role="group" aria-label="Filtrar por mirada">
+          <span class="lbl">Ver</span>
+          <button type="button" data-l="" aria-pressed="true">Todo</button>
+          <button type="button" data-l="producto" aria-pressed="false">Producto</button>
+          <button type="button" data-l="proceso" aria-pressed="false">Proceso</button>
+          <button type="button" data-l="equipo" aria-pressed="false">Equipo</button>
+        </div>
+        <div class="rb" id="rb"></div>
+        <p class="b-foot" id="b-foot" style="margin-top:18px">Cada nota es de todos: tocá una para editarla. Votá con + las que más pesan. En la fase 3, una referencia es tres votos por persona.</p>
+      </section>
+    </div>
+  </div>
+  <div class="toast" id="b-toast" role="status" hidden></div>
+</div>
+
+<script>
+(function () {
+  /* ---------- Datos fijos ---------- */
+  var PH = [
+    { t: "Apertura", q: "Antes de empezar", say: "Leé la directriz en voz alta. Después, cada persona dice una palabra sobre cómo llega a esta retro.", min: 8,
+      f: ["Check-in de una palabra", "Medidor emocional: alta o baja energía, agradable o desagradable"] },
+    { t: "Capturar datos", q: "¿Qué pasó?", say: "Cada persona escribe hechos del ciclo en la columna 1, sin interpretarlos. Marcá si cada nota es de producto, proceso o equipo.", min: 15,
+      f: ["Línea de tiempo del ciclo", "Mad, Sad, Glad", "Las 4 L: me gustó, aprendí, faltó, deseé"] },
+    { t: "Reflexionar y aprender", q: "¿Qué nos dicen los datos?", say: "Lean las notas de la fase 1. Busquen patrones y escriban en la columna 2 lo que aprendieron.", min: 15,
+      f: ["1-2-4-todos sobre los datos", "Cinco porqués", "Agrupar por temas"] },
+    { t: "Identificar desafíos", q: "¿Qué nos está frenando?", say: "Escriban los desafíos en la columna 3 y voten con +. Una referencia: tres votos por persona. Elijan uno o dos.", min: 15,
+      f: ["Votación con puntos", "¿Qué necesito de ti?", "Troika Consulting"] },
+    { t: "Crear experimentos", q: "¿Qué probamos en el próximo ciclo?", say: "Escriban experimentos chicos en la columna 4: qué haremos, quién lo lleva, hasta cuándo y cómo sabremos si funcionó.", min: 20,
+      f: ["Empezar, parar, continuar", "Experimento en una línea: Creemos que…, si probamos…, veremos…", "1-2-4-todos para elegir"] }
+  ];
+  var LENS = { producto: "Producto", proceso: "Proceso", equipo: "Equipo" };
+  var DIRECTRIZ = "Sin importar lo que descubramos, entendemos y creemos sinceramente que cada persona hizo el mejor trabajo que pudo, dado lo que sabía en ese momento, sus habilidades, los recursos disponibles y la situación en que estaba.";
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function normCode(s) { return String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); }
+  function showCode(c) { return c.length > 3 ? c.slice(0, 3) + "-" + c.slice(3) : c; }
+  function genCode() { var a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", o = "", b = new Uint32Array(6); crypto.getRandomValues(b); for (var i = 0; i < 6; i++) o += a[b[i] % a.length]; return o; }
+  function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+  var tt;
+  function toast(m) { var t = $("b-toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(function () { t.hidden = true; }, 2800); }
+  function err(m) { $("b-err").textContent = m || ""; }
+  function say(m, bad) { var s = $("status"); s.textContent = m; s.className = "status" + (bad ? " err" : ""); }
+
+  function api(method, path, body) {
+    return fetch("/retro/api" + path, { method: method, headers: body ? { "content-type": "application/json" } : undefined, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || "No se pudo completar la acción."); e.status = r.status; throw e; } return j; }); });
+  }
+
+  /* ---------- Guía: índice ---------- */
+  (function () {
+    var h = document.querySelectorAll("#guide h2"), out = "";
+    Array.prototype.forEach.call(h, function (el) { out += '<li><a href="#' + el.id + '" data-t="' + el.id + '">' + esc(el.textContent) + "</a></li>"; });
+    $("toc").innerHTML = out;
+    if (window.matchMedia && !window.matchMedia("(min-width: 960px)").matches) $("d-toc").open = false;
+    try {
+      var links = {};
+      Array.prototype.forEach.call(document.querySelectorAll(".rail a[data-t]"), function (a) { links[a.dataset.t] = a; });
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { var a = links[e.target.id]; if (a && e.isIntersecting) { Array.prototype.forEach.call(document.querySelectorAll(".rail a.on"), function (x) { x.classList.remove("on"); }); a.classList.add("on"); } });
+      }, { rootMargin: "-15% 0px -70% 0px" });
+      Array.prototype.forEach.call(h, function (el) { io.observe(el); });
+    } catch (e) {}
+  })();
+
+  /* ---------- PDF ---------- */
+  function latin(s) { return String(s).replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, "-").replace(/…/g, "...").replace(/≥/g, ">=").replace(/[^\u0000-ÿ]/g, ""); }
+  function sorted(items, ph) {
+    var l = items.filter(function (n) { return n.phase === ph; });
+    if (ph >= 3) l.sort(function (a, b) { return b.votes - a.votes || String(a.at).localeCompare(String(b.at)); });
+    else l.sort(function (a, b) { return String(a.at).localeCompare(String(b.at)); });
+    return l;
+  }
+  function pdfCanvas(name, code, items) {
+    var doc = new window.jspdf.jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    var W = 297, H = 210, M = 12, blank = !items;
+    function F(font, st, sz, col) { doc.setFont(font, st); doc.setFontSize(sz); doc.setTextColor(col[0], col[1], col[2]); }
+    var INK = [43, 43, 43], MUT = [100, 100, 100];
+    doc.setFillColor(74, 134, 232); doc.rect(0, 0, W, 22, "F");
+    F("helvetica", "bold", 20, INK); doc.text("Retro de equipo", M, 14.5);
+    F("helvetica", "normal", 9, [27, 27, 27]);
+    doc.text("Una pausa para aprender de lo que hacemos, como lo hacemos", 92, 10); doc.text("y como estamos funcionando como equipo.", 92, 15);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(222, 4, 63, 6.5, 3.25, 3.25, "F"); doc.roundedRect(222, 12, 63, 6.5, 3.25, 3.25, "F");
+    F("helvetica", "bold", 7, INK);
+    doc.text(blank ? "FECHA" : "FECHA  " + new Date().toLocaleDateString("es"), 226, 8.4);
+    doc.text(blank ? "EQUIPO" : latin("EQUIPO  " + name).slice(0, 36), 226, 16.4);
+    var lw = (W - 2 * M - 2 * 5) / 3, lens = [["Producto", "Lo que hacemos"], ["Proceso", "Como lo estamos haciendo"], ["Equipo", "Como estamos funcionando como equipo"]];
+    lens.forEach(function (l, i) {
+      var x = M + i * (lw + 5);
+      doc.setFillColor(228, 228, 228); doc.rect(x, 27, lw, 13, "F");
+      F("helvetica", "bold", 10, INK); doc.text(l[0], x + 3, 33); F("helvetica", "normal", 8, MUT); doc.text(l[1], x + 3, 37.5);
+    });
+    var cw = (W - 2 * M - 3 * 4) / 4, top = 45, bot = H - 30, shades = [[237, 237, 237], [222, 222, 222], [207, 207, 207], [189, 189, 189]];
+    var over = [];
+    for (var p = 1; p <= 4; p++) {
+      var x = M + (p - 1) * (cw + 4);
+      doc.setFillColor(shades[p - 1][0], shades[p - 1][1], shades[p - 1][2]); doc.rect(x, top, cw, bot - top, "F");
+      F("helvetica", "bold", 10, INK); doc.text(latin(p + "  " + PH[p].t), x + 3, top + 6.5);
+      F("helvetica", "normal", 8, MUT); doc.text(latin(PH[p].q), x + 3, top + 11.5);
+      var y = top + 18;
+      if (blank) {
+        doc.setDrawColor(170, 170, 170); doc.setLineWidth(0.2);
+        for (var k = 0; k < 9; k++) { doc.line(x + 3, y + k * 11, x + cw - 3, y + k * 11); }
+      } else {
+        var list = sorted(items, p), shown = 0;
+        for (var i = 0; i < list.length; i++) {
+          var n = list[i], tag = "[" + LENS[n.lens].slice(0, 3) + "] ";
+          F("helvetica", "normal", 8, INK);
+          var lines = doc.splitTextToSize(latin(tag + n.text + (n.votes ? "  (+" + n.votes + ")" : "")), cw - 8);
+          var hh = lines.length * 3.7 + 2.5;
+          if (y + hh > bot - 6) break;
+          doc.setFillColor(255, 255, 255); doc.rect(x + 2, y - 3.2, cw - 4, hh, "F");
+          lines.forEach(function (l, j) { doc.text(l, x + 4, y + j * 3.7); });
+          y += hh + 1.2; shown++;
+        }
+        if (shown < list.length) { over.push(p); F("helvetica", "italic", 7.5, MUT); doc.text("+ " + (list.length - shown) + " mas, en las paginas siguientes", x + 3, bot - 2.5); }
+      }
+    }
+    doc.setFillColor(166, 166, 166); doc.rect(M, H - 25, W - 2 * M, 17, "F");
+    F("helvetica", "bold", 7.5, [34, 34, 34]); doc.text("LA DIRECTRIZ DE LA RETROSPECTIVA", M + 4, H - 19.5);
+    F("helvetica", "normal", 8, [34, 34, 34]);
+    doc.splitTextToSize(latin(DIRECTRIZ), W - 2 * M - 8).forEach(function (l, j) { doc.text(l, M + 4, H - 14.8 + j * 3.8); });
+    F("helvetica", "normal", 7, MUT); doc.text(blank ? "Retro de Equipo" : "Retro de Equipo", M, H - 3.5);
+    if (!blank && over.length) {
+      doc.addPage(); var y2 = M + 4; F("helvetica", "bold", 14, INK); doc.text(latin("Detalle de la retro: " + name), M, y2); y2 += 9;
+      for (var q = 1; q <= 4; q++) {
+        var l2 = sorted(items, q); if (!l2.length) continue;
+        if (y2 > H - 24) { doc.addPage(); y2 = M + 4; }
+        F("helvetica", "bold", 11, INK); doc.text(latin(q + "  " + PH[q].t + " · " + PH[q].q), M, y2); y2 += 6;
+        l2.forEach(function (n) {
+          F("helvetica", "normal", 9.5, INK);
+          var ls = doc.splitTextToSize(latin("[" + LENS[n.lens] + "] " + n.text + (n.votes ? "   (+" + n.votes + ")" : "")), W - 2 * M - 6);
+          if (y2 + ls.length * 4.6 > H - 14) { doc.addPage(); y2 = M + 4; }
+          doc.setFillColor(179, 38, 75); doc.circle(M + 1.2, y2 - 1.2, 0.6, "F");
+          ls.forEach(function (l, j) { F("helvetica", "normal", 9.5, INK); doc.text(l, M + 5, y2 + j * 4.6); });
+          y2 += ls.length * 4.6 + 1.6;
+        });
+        y2 += 4;
+      }
+    }
+    return doc.output("blob");
+  }
+  function saveBlob(blob, filename) {
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  function slug(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "equipo"; }
+  $("btn-blank").addEventListener("click", function () {
+    try { saveBlob(pdfCanvas("", "", null), "canvas-retro-de-equipo.pdf"); say("Canvas descargado."); }
+    catch (e) { say("No pude armar el PDF. Probá de nuevo.", true); }
+  });
+
+  /* ---------- Vistas ---------- */
+  function go(v) {
+    $("v-guide").hidden = v !== "guide"; $("v-build").hidden = v !== "build";
+    window.scrollTo(0, 0);
+    try { history.replaceState(null, "", v === "build" ? "#armar" : "#"); } catch (e) {}
+  }
+  document.addEventListener("click", function (e) {
+    var g = e.target.closest("[data-go]"); if (!g) return;
+    e.preventDefault(); go(g.getAttribute("data-go"));
+  });
+
+  /* ---------- Estado de la retro ---------- */
+  var S = { code: null, demo: false, name: "", phase: 0, items: [], busy: 0, lastWrite: 0, editing: null, armed: null, lens: "", lensNew: "producto", voted: {}, fmt: {}, poll: null, loaded: false, created: false,
+            tm: { left: 0, total: 0, on: false, int: null, mins: 0 } };
+
+  $("f-create").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var name = $("in-name").value.trim();
+    if (name.length < 2) { err("Escribí el nombre del equipo (mínimo 2 letras)."); $("in-name").focus(); return; }
+    $("b-create").disabled = true; err("");
+    try {
+      var code = null;
+      for (var i = 0; i < 6 && !code; i++) { var c = genCode(); try { await api("GET", "/retros/" + c); } catch (x) { if (x.status === 404) code = c; else throw x; } }
+      if (!code) throw new Error("No pude generar un código libre. Probá de nuevo.");
+      await api("POST", "/retros", { code: code, name: name });
+      S.created = true; await enter(code, name);
+    } catch (ex) { err(ex.message); }
+    $("b-create").disabled = false;
+  });
+  $("f-join").addEventListener("submit", function (e) { e.preventDefault(); enter($("in-code").value); });
+
+  async function enter(raw, knownName) {
+    var code = normCode(raw);
+    if (code.length < 4) { err("El código tiene al menos 4 caracteres."); return; }
+    err("");
+    var r;
+    try { r = await api("GET", "/retros/" + code); }
+    catch (ex) { S.created = false; err(ex.status === 404 ? "No hay una retro con ese código. Revisá que esté bien escrito." : ex.message); return; }
+    S.code = code; S.demo = !!r.demo; S.name = knownName || r.name; S.phase = r.phase; S.items = []; S.editing = null; S.armed = null; S.loaded = false;
+    S.voted = {}; (store("rt.v." + code) || []).forEach(function (id) { S.voted[id] = 1; });
+    showApp(); startPoll();
+  }
+
+  function showApp() {
+    $("b-land").hidden = true; $("b-app").hidden = false;
+    $("b-name").textContent = S.name; $("b-chip").textContent = "Copiar código";
+    $("b-notice").hidden = !S.created || S.demo; $("b-demo").hidden = !S.demo; $("b-foot").hidden = S.demo;
+    $("b-live").textContent = "Sincronizando…";
+    var cols = "";
+    for (var p = 1; p <= 4; p++) {
+      cols += '<section class="bs" data-ph="' + p + '" aria-labelledby="h-' + p + '"><h3 id="h-' + p + '">' + p + " · " + esc(PH[p].t) + '</h3><p class="q">' + esc(PH[p].q) + '</p><ul class="bn" id="n-' + p + '"></ul>' +
+        (S.demo ? "" : '<form class="badd" data-ph="' + p + '" autocomplete="off"><label class="sr" for="a-' + p + '">Sumar una nota a ' + esc(PH[p].t) + '</label>' +
+        '<select aria-label="Mirada de la nota" data-sel="' + p + '"><option value="producto">Producto</option><option value="proceso">Proceso</option><option value="equipo">Equipo</option></select>' +
+        '<input class="b-in" id="a-' + p + '" type="text" maxlength="400" placeholder="Sumá una nota…"><button class="btn sm" type="submit">Agregar</button></form>') + '</section>';
+    }
+    $("rb").innerHTML = cols;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-sel]"), function (s) { s.value = S.lensNew; });
+    renderAll(); window.scrollTo(0, 0);
+  }
+  function leave() {
+    clearInterval(S.poll); S.poll = null; stopTimer(); S.code = null; S.created = false;
+    $("b-app").hidden = true; $("b-land").hidden = false;
+  }
+  $("b-leave").addEventListener("click", leave);
+  function copyCode() { var t = showCode(S.code); try { navigator.clipboard.writeText(t).then(function () { toast("Código copiado"); }, function () { toast("No pude copiar. Probá de nuevo."); }); } catch (e) { toast("No pude copiar. Probá de nuevo."); } }
+  $("b-chip").addEventListener("click", copyCode); $("b-copy2").addEventListener("click", copyCode);
+  $("b-ok").addEventListener("click", function () { S.created = false; $("b-notice").hidden = true; });
+
+  /* ---------- Sincronización ---------- */
+  function startPoll() {
+    clearInterval(S.poll);
+    var tick = async function () {
+      if (!S.code || S.busy > 0 || Date.now() - S.lastWrite < 1500 || S.editing) return;
+      try {
+        var r = await api("GET", "/retros/" + S.code + "/state");
+        if (S.busy > 0 || S.editing) return;
+        S.phase = r.retro.phase; S.items = r.items; S.loaded = true;
+        $("b-live").textContent = "Guardado y sincronizado"; renderAll();
+      } catch (e) { $("b-live").textContent = "Sin conexión. Sigue intentando; no hace falta recargar."; }
+    };
+    tick(); S.poll = setInterval(tick, 4000);
+  }
+  async function write(fn, undo) {
+    if (S.demo) return;
+    S.busy++; S.lastWrite = Date.now();
+    try { await fn(); } catch (e) { if (undo) undo(); renderAll(); toast(e.message); }
+    S.busy--; S.lastWrite = Date.now();
+  }
+
+  /* ---------- Render ---------- */
+  function renderAll() { if (!S.code) return; renderStepper(); renderFac(); renderItems(); }
+  function renderStepper() {
+    $("stp").innerHTML = PH.map(function (p, i) {
+      var c = i === S.phase ? "now" : (i < S.phase ? "done" : "");
+      return '<button type="button" class="' + c + '" data-p="' + i + '"' + (S.demo ? " disabled" : "") + (i === S.phase ? ' aria-current="step"' : "") + '><span class="k">' + (i === 0 ? "Inicio" : "Fase " + i) + '</span><span class="t">' + esc(p.t) + "</span></button>";
+    }).join("");
+  }
+  function renderFac() {
+    var p = PH[S.phase], fi = (S.fmt[S.phase] || 0) % p.f.length, last = S.phase === 4;
+    var mins = S.tm.mins || p.min;
+    var el = $("fac"), prevTimer = el.querySelector(".clock");
+    el.innerHTML =
+      '<div><p class="eyebrow">' + (S.phase === 0 ? "Antes de empezar" : "Fase " + S.phase + " de 4") + '</p><h3>' + esc(p.t) + '</h3><p class="q">' + esc(p.q) + '</p><p class="say">' + esc(p.say) + '</p>' +
+      (S.phase === 0 ? '<blockquote class="dir">' + esc(DIRECTRIZ) + '</blockquote>' : "") +
+      '<div class="fmt"><span><b>Formato sugerido:</b> ' + esc(p.f[fi]) + '</span><button class="btn sm quiet" type="button" id="fmt-next">Otro formato</button></div></div>' +
+      '<div class="tmr"><p class="eyebrow">Temporizador</p><div class="clock' + (S.tm.left === 0 && S.tm.total > 0 ? " end" : "") + '" id="clock" aria-live="off">' + fmtTime(S.tm.total ? S.tm.left : mins * 60) + '</div>' +
+      '<div class="b-row"><button class="btn sm" type="button" id="tm-go">' + (S.tm.on ? "Pausar" : (S.tm.total && S.tm.left > 0 ? "Seguir" : "Empezar")) + '</button><button class="btn sm quiet" type="button" id="tm-reset">Reiniciar</button>' +
+      '<select id="tm-min" aria-label="Minutos" class="b-in" style="flex:0 0 auto">' + [5, 8, 10, 15, 20, 30].map(function (m) { return '<option value="' + m + '"' + (m === mins ? " selected" : "") + ">" + m + " min</option>"; }).join("") + '</select></div>' +
+      '<div class="nav" style="margin-top:6px">' +
+      (S.phase > 0 && !S.demo ? '<button class="btn sm quiet" type="button" id="ph-prev">Fase anterior</button>' : "") +
+      (last ? '<button class="btn sm primary" type="button" id="ph-pdf">Descargar la retro (PDF)</button>' : '<button class="btn sm primary" type="button" id="ph-next">Pasar a ' + (S.phase === 0 ? "la fase 1" : "la fase " + (S.phase + 1)) + '</button>') +
+      '</div></div>';
+  }
+  function fmtTime(s) { s = Math.max(0, Math.round(s)); return ("0" + Math.floor(s / 60)).slice(-2) + ":" + ("0" + (s % 60)).slice(-2); }
+  function stopTimer() { clearInterval(S.tm.int); S.tm.on = false; }
+  function setPhase(p) {
+    if (p === S.phase || S.demo) return;
+    var old = S.phase; S.phase = p; S.tm = { left: 0, total: 0, on: false, int: (stopTimer(), null), mins: 0 };
+    renderAll();
+    write(function () { return api("PATCH", "/retros/" + S.code, { phase: p }); }, function () { S.phase = old; });
+  }
+  function visible() { return S.items.filter(function (n) { return !S.lens || n.lens === S.lens; }); }
+  function renderItems() {
+    var all = visible(), total = S.items.length, votes = S.items.reduce(function (a, n) { return a + n.votes; }, 0);
+    $("b-prog").textContent = total + (total === 1 ? " nota" : " notas") + " · " + votes + (votes === 1 ? " voto" : " votos");
+    for (var p = 1; p <= 4; p++) {
+      var sec = document.querySelector('.bs[data-ph="' + p + '"]'); if (!sec) continue;
+      sec.classList.toggle("cur", p === S.phase);
+      var mine = sorted(all, p), ul = $("n-" + p);
+      if (S.editing && mine.some(function (n) { return n.id === S.editing; })) continue;
+      ul.innerHTML = mine.length ? mine.map(function (n) {
+        var on = S.voted[n.id];
+        if (S.demo) return '<li data-id="' + esc(n.id) + '"><span class="nt">' + esc(n.text) + '</span><div class="row"><span class="pill l-' + n.lens + '">' + LENS[n.lens] + '</span><span class="vt vs" aria-label="' + n.votes + ' votos">+ ' + n.votes + '</span></div></li>';
+        return '<li data-id="' + esc(n.id) + '"><span class="nt" tabindex="0" role="button" data-act="edit" data-id="' + esc(n.id) + '">' + esc(n.text) + '</span>' +
+          '<div class="row"><span class="pill l-' + n.lens + '">' + LENS[n.lens] + '</span><button class="vt' + (on ? " on" : "") + '" type="button" data-act="vote" data-id="' + esc(n.id) + '" aria-pressed="' + (on ? "true" : "false") + '" aria-label="Votar esta nota">+ ' + n.votes + '</button>' +
+          '<button class="x' + (S.armed === n.id ? " arm" : "") + '" type="button" data-act="del" data-id="' + esc(n.id) + '" aria-label="Quitar esta nota">' + (S.armed === n.id ? "¿Quitar?" : "Quitar") + '</button></div></li>';
+      }).join("") : '<li class="ex"><span class="exl">Todavía no hay notas</span>' + (S.lens ? "No hay notas de esta mirada." : "Sumá la primera desde abajo.") + '</li>';
+    }
+  }
+
+  /* ---------- Acciones ---------- */
+  $("stp").addEventListener("click", function (e) { var b = e.target.closest("[data-p]"); if (b) setPhase(+b.dataset.p); });
+  $("fac").addEventListener("click", function (e) {
+    var id = e.target.id;
+    if (id === "fmt-next") { S.fmt[S.phase] = (S.fmt[S.phase] || 0) + 1; renderFac(); }
+    else if (id === "ph-next") setPhase(S.phase + 1);
+    else if (id === "ph-prev") setPhase(S.phase - 1);
+    else if (id === "ph-pdf") $("b-pdf").click();
+    else if (id === "tm-reset") { stopTimer(); S.tm.left = 0; S.tm.total = 0; renderFac(); }
+    else if (id === "tm-go") {
+      if (S.tm.on) { stopTimer(); renderFac(); return; }
+      if (!S.tm.total || S.tm.left <= 0) { var m = S.tm.mins || PH[S.phase].min; S.tm.total = m * 60; S.tm.left = m * 60; }
+      S.tm.on = true;
+      S.tm.int = setInterval(function () {
+        S.tm.left--; var c = $("clock"); if (c) c.textContent = fmtTime(S.tm.left);
+        if (S.tm.left <= 0) { stopTimer(); renderFac(); toast("Se terminó el tiempo"); }
+      }, 1000);
+      renderFac();
+    }
+  });
+  $("fac").addEventListener("change", function (e) { if (e.target.id === "tm-min") { stopTimer(); S.tm.mins = +e.target.value; S.tm.total = 0; S.tm.left = 0; renderFac(); } });
+  $("flt").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-l]"); if (!b) return; S.lens = b.dataset.l;
+    Array.prototype.forEach.call($("flt").querySelectorAll("[data-l]"), function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+    renderItems();
+  });
+  $("rb").addEventListener("change", function (e) { if (e.target.dataset.sel) { S.lensNew = e.target.value; Array.prototype.forEach.call(document.querySelectorAll("[data-sel]"), function (s) { s.value = S.lensNew; }); } });
+  $("rb").addEventListener("submit", function (e) {
+    var f = e.target.closest(".badd"); if (!f) return; e.preventDefault();
+    var inp = f.querySelector("input"), text = inp.value.trim(); if (!text) return;
+    var ph = +f.dataset.ph, lens = f.querySelector("select").value, tmpId = "tmp" + Date.now();
+    inp.value = "";
+    S.items.push({ id: tmpId, phase: ph, lens: lens, text: text, votes: 0, at: new Date().toISOString() }); renderItems();
+    write(async function () {
+      var r = await api("POST", "/retros/" + S.code + "/items", { phase: ph, lens: lens, text: text });
+      S.items = S.items.map(function (n) { return n.id === tmpId ? r : n; }); renderItems();
+    }, function () { S.items = S.items.filter(function (n) { return n.id !== tmpId; }); inp.value = text; });
+  });
+  function find(id) { return S.items.filter(function (n) { return n.id === id; })[0]; }
+  $("rb").addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]"); if (!el) return;
+    var id = el.dataset.id, act = el.dataset.act, n = find(id); if (!n || id.indexOf("tmp") === 0) return;
+    if (act === "edit") startEdit(id);
+    else if (act === "vote") {
+      var on = !!S.voted[id], d = on ? -1 : 1;
+      if (on) delete S.voted[id]; else S.voted[id] = 1;
+      store("rt.v." + S.code, Object.keys(S.voted)); n.votes = Math.max(0, n.votes + d); renderItems();
+      write(function () { return api("POST", "/retros/" + S.code + "/items/" + id + "/vote", { delta: d }); }, function () { n.votes = Math.max(0, n.votes - d); if (on) S.voted[id] = 1; else delete S.voted[id]; });
+    } else if (act === "del") {
+      if (S.armed !== id) { S.armed = id; renderItems(); setTimeout(function () { if (S.armed === id) { S.armed = null; renderItems(); } }, 3000); return; }
+      S.armed = null; var keep = S.items; S.items = S.items.filter(function (x) { return x.id !== id; }); renderItems();
+      write(function () { return api("DELETE", "/retros/" + S.code + "/items/" + id); }, function () { S.items = keep; });
+    } else if (act === "save") saveEdit(id);
+    else if (act === "cancel") endEdit();
+  });
+  $("rb").addEventListener("keydown", function (e) {
+    var ed = e.target.closest && e.target.closest("textarea[data-edit]");
+    if (ed) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(ed.dataset.edit); } else if (e.key === "Escape") { e.preventDefault(); endEdit(); } return; }
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[data-act="edit"]')) { e.preventDefault(); startEdit(e.target.dataset.id); }
+  });
+  function startEdit(id) {
+    if (S.editing) endEdit();
+    var n = find(id); if (!n) return; S.editing = id;
+    var li = $("n-" + n.phase).querySelector('li[data-id="' + id + '"]'); if (!li) return;
+    li.className = "edit";
+    li.innerHTML = '<textarea data-edit="' + esc(id) + '" maxlength="400" aria-label="Editar nota">' + esc(n.text) + '</textarea><div class="b-row"><button class="btn sm primary" type="button" data-act="save" data-id="' + esc(id) + '">Guardar</button><button class="btn sm quiet" type="button" data-act="cancel" data-id="' + esc(id) + '">Cancelar</button></div>';
+    var ta = li.querySelector("textarea"); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+  }
+  function endEdit() { S.editing = null; renderItems(); }
+  function saveEdit(id) {
+    var ta = $("rb").querySelector("textarea[data-edit]"); if (!ta) return;
+    var text = ta.value.trim(), n = find(id); S.editing = null;
+    if (!text || !n || text === n.text) { renderItems(); return; }
+    var old = n.text; n.text = text; renderItems();
+    write(function () { return api("PATCH", "/retros/" + S.code + "/items/" + id, { text: text }); }, function () { n.text = old; });
+  }
+
+  $("b-pdf").addEventListener("click", function () {
+    try { saveBlob(pdfCanvas(S.name, S.code, S.items), "retro-" + slug(S.name) + ".pdf"); toast("Retro descargada"); }
+    catch (e) { toast("No pude armar el PDF. Probá de nuevo."); }
+  });
+
+  $("b-open-demo").addEventListener("click", function () { enter("ACME01"); });
+  $("b-mine").addEventListener("click", function () { leave(); try { history.replaceState(null, "", "#armar"); } catch (e) {} $("in-name").focus(); });
+  var H0 = location.hash; /* se lee antes de go(), que reescribe el hash a #armar */
+  if (H0 === "#ejemplo") { go("build"); enter("ACME01"); try { history.replaceState(null, "", "#ejemplo"); } catch (e) {} }
+  else if (H0 === "#armar") go("build");
+  else if (/^#[A-Za-z0-9]{6}$/.test(H0)) { go("build"); enter(H0.slice(1).toUpperCase()); }
+})();
+</script>
+</body>
+</html>

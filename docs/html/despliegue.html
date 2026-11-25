@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Despliegue · Leadership Lab</title>
+<meta name="description" content="Documentación técnica de Leadership Lab: stack, arquitectura, ambientes, base de datos, desarrollo, pruebas y despliegue.">
+<link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <button type="button" class="menu-btn" aria-label="Abrir el menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="brand" href="index.html">Leadership Lab <span>Documentación</span></a>
+  <button type="button" class="theme-btn" aria-label="Cambiar entre modo claro y oscuro" title="Cambiar tema"></button>
+</header>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Documentación">
+    <div class="search">
+      <input type="search" id="q" placeholder="Buscar en la documentación" aria-label="Buscar en la documentación" autocomplete="off">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+    <ul class="nav"><li><a href="index.html"><span class="nav-label">Inicio</span><span class="nav-hint">Qué es y cómo arrancar</span></a></li><li><a href="stack-tecnologico.html"><span class="nav-label">Stack tecnológico</span><span class="nav-hint">Qué usa cada capa y cada app</span></a></li><li><a href="arquitectura.html"><span class="nav-label">Arquitectura</span><span class="nav-hint">Cómo encaja todo</span></a></li><li><a href="ambientes.html"><span class="nav-label">Ambientes</span><span class="nav-hint">dev, test y prod</span></a></li><li><a href="base-de-datos.html"><span class="nav-label">Base de datos</span><span class="nav-hint">Una D1, tablas y migraciones</span></a></li><li><a href="desarrollo.html"><span class="nav-label">Desarrollo</span><span class="nav-hint">Requisitos y flujo de trabajo</span></a></li><li><a href="pruebas.html"><span class="nav-label">Pruebas</span><span class="nav-hint">Niveles y cómo correrlos</span></a></li><li><a href="despliegue.html" aria-current="page"><span class="nav-label">Despliegue</span><span class="nav-hint">Publicar en Cloudflare</span></a></li></ul>
+    <p class="side-foot">Generado desde los archivos <code>.md</code>.<br>Para cambiarlo, editá el markdown y corré <code>make docs</code>.</p>
+  </nav>
+  <main id="contenido" class="content">
+    <article class="doc">
+<h1 id="despliegue">Despliegue</h1>
+<h2 id="local-dev-y-test">Local (dev y test)<a class="anchor" href="#local-dev-y-test" aria-label="Enlace a esta sección">#</a></h2>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code>make dev                # desarrollo -&gt; http://localhost:8090/
+make up ENV=test        # pruebas    -&gt; http://localhost:8190/
+</code></pre></div>
+<p>No hace falta cuenta de Cloudflare. Ver <a href="desarrollo.html">desarrollo.md</a>.</p>
+<h2 id="produccion-cloudflare">Producción (Cloudflare)<a class="anchor" href="#produccion-cloudflare" aria-label="Enlace a esta sección">#</a></h2>
+<p>Publicar es una acción externa: <strong>se hace a propósito</strong> y con un respaldo antes.</p>
+<h3 id="primera-vez">Primera vez<a class="anchor" href="#primera-vez" aria-label="Enlace a esta sección">#</a></h3>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code>npx wrangler login                     # una vez por máquina
+cp .env.example .env                   # y completar ADMIN_KEY_PROD (12+ caracteres)
+make cloudflare-bootstrap ENV=prod     # crea Pages + D1 + KV &quot;leadership-lab&quot; y guarda sus ids
+git add config/environments.json       # los ids de los recursos se versionan (no son secretos)
+make deploy ENV=prod
+</code></pre></div>
+<p><code>make cloudflare-bootstrap</code> es <strong>idempotente</strong>: si el recurso ya existe, lo reutiliza.</p>
+<h3 id="cada-publicacion">Cada publicación<a class="anchor" href="#cada-publicacion" aria-label="Enlace a esta sección">#</a></h3>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code>make test                # todo en verde antes de publicar
+make deploy ENV=prod
+</code></pre></div>
+<p><code>scripts/deploy.sh</code>:</p>
+<ol>
+<li>Exporta un respaldo de la D1 a <code>.local/backups/</code>.</li>
+<li>Arma <code>build/prod/</code>.</li>
+<li>Aplica las migraciones pendientes a la D1 remota.</li>
+<li>Carga la clave de admin como secreto <code>APP_ADMIN_CLAVE</code>.</li>
+<li>Publica con <code>wrangler pages deploy</code>.</li>
+<li>Verifica que respondan <code>/</code>, <code>/app-admin/</code> y cada app.</li>
+</ol>
+<p><strong>Si el despliegue incluye migraciones, revisalas antes:</strong> cambian datos reales.</p>
+<h3 id="cambiar-la-clave-de-admin">Cambiar la clave de admin<a class="anchor" href="#cambiar-la-clave-de-admin" aria-label="Enlace a esta sección">#</a></h3>
+<p>Editar <code>ADMIN_KEY_PROD</code> en <code>.env</code> y volver a correr <code>make deploy ENV=prod</code> (los secretos se aplican en el siguiente despliegue).</p>
+<h2 id="pruebas-en-cloudflare">Pruebas en Cloudflare<a class="anchor" href="#pruebas-en-cloudflare" aria-label="Enlace a esta sección">#</a></h2>
+<p>Ver &quot;Pasar pruebas a Cloudflare&quot; en <a href="ambientes.html">ambientes.md</a>.</p>
+<h2 id="migrar-datos-desde-ch-leadership-lab">Migrar datos desde <code>ch-leadership-lab</code><a class="anchor" href="#migrar-datos-desde-ch-leadership-lab" aria-label="Enlace a esta sección">#</a></h2>
+<p>Si el sitio anterior tiene datos que querés conservar, copiá la base antes de publicar (la base original no se toca):</p>
+<div class="code-block"><button type="button" class="copy" data-copy>Copiar</button><span class="lang">bash</span><pre><code>npx wrangler d1 export team-canvas --remote --no-schema --output .local/backups/old-data.sql   # base de ch-leadership-lab
+sed -E &#39;s/^INSERT INTO/INSERT OR REPLACE INTO/&#39; .local/backups/old-data.sql | grep -v -E &#39;d1_migrations|sqlite_sequence|^PRAGMA|^BEGIN|^COMMIT&#39; &gt; .local/backups/load.sql
+npx wrangler d1 execute leadership-lab --remote --file .local/backups/load.sql                  # base nueva (después de make deploy)
+</code></pre></div>
+<p>Verificá que los conteos de cada tabla coincidan antes de dar por terminada la migración.</p>
+<h2 id="feedback">Feedback<a class="anchor" href="#feedback" aria-label="Enlace a esta sección">#</a></h2>
+<p>El botón lateral <strong>Feedback</strong> del shell abre un panel con un formulario de <a href="https://tally.so" target="_blank" rel="noopener">Tally</a> embebido. No hace falta desplegar nada aparte.</p>
+<ul>
+<li><strong>Cambiar el formulario:</strong> editar <code>feedback_form_url</code> del ambiente en <code>config/environments.json</code> (la URL de embed de Tally) y volver a desplegar. Con el valor vacío, el botón no aparece.</li>
+<li><strong>Ver las respuestas:</strong> en tu cuenta de Tally (no en el admin del sitio).</li>
+<li><strong>Si el formulario no carga</strong> (sin internet, bloqueado por una extensión o por la red, o más de 10 segundos sin cargar), el panel muestra como opción principal el enlace &quot;Abrir el formulario en una ventana nueva&quot;, con la misma URL. Cuando carga bien, ese enlace queda igual, discreto, debajo del título del panel.</li>
+<li><strong>Privacidad:</strong> Tally es un servicio de terceros. Su código solo se carga cuando alguien abre el panel por primera vez.</li>
+</ul>
+
+    </article>
+    <nav class="pager" aria-label="Páginas"><a class="prev" href="pruebas.html"><small>Anterior</small>Pruebas</a><span></span></nav>
+    <footer class="credit">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></footer>
+  </main>
+  <aside class="toc" aria-label="En esta página"><p>En esta página</p><ul><li class="l2"><a href="#local-dev-y-test">Local (dev y test)</a></li><li class="l2"><a href="#produccion-cloudflare">Producción (Cloudflare)</a></li><li class="l3"><a href="#primera-vez">Primera vez</a></li><li class="l3"><a href="#cada-publicacion">Cada publicación</a></li><li class="l3"><a href="#cambiar-la-clave-de-admin">Cambiar la clave de admin</a></li><li class="l2"><a href="#pruebas-en-cloudflare">Pruebas en Cloudflare</a></li><li class="l2"><a href="#migrar-datos-desde-ch-leadership-lab">Migrar datos desde ch-leadership-lab</a></li><li class="l2"><a href="#feedback">Feedback</a></li></ul></aside>
+</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/docs.js"></script>
+
+</body>
+</html>

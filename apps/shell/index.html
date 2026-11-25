@@ -1,0 +1,30 @@
+<!-- Motor: dashboard-ui v1.6.0 (vendored, sin cambios) — fuente: ~/Lab/toolkit/dashboard-ui/
+     Skin: skin/skin.js lee skin/activo.json y aplica el tema activo (shell + apps embebidas). -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App</title>
+<link rel="stylesheet" href="assets/style.css?v=1.6.0">
+<link rel="stylesheet" href="skin/base.css">
+<script>if(!location.search)history.replaceState(null,"","?menu=assets/menu.js");</script>
+</head>
+<body>
+<div class="app-shell" id="app-shell">
+  <nav class="sidebar" id="sidebar"></nav>
+  <button type="button" class="sidebar-open-btn" id="sidebar-open-btn" title="Mostrar barra lateral" aria-label="Mostrar barra lateral">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <main class="content">
+    <div id="home-panel" class="home-panel"></div>
+    <iframe id="app-frame" class="app-frame" hidden title="App embebida" allow="clipboard-write"></iframe>
+  </main>
+</div>
+<footer id="skin-footer" class="skin-footer"><span class="skin-credito">Design with love ❤️ by <a href="https://tewaconsulting.com" target="_blank" rel="noopener">Tewa</a> &amp; <a href="https://www.linkedin.com/in/luismulato" target="_blank" rel="noopener">Luis Mulato</a></span></footer>
+<script src="env.js"></script>
+<script src="skin/skin.js"></script>
+<script src="skin/feedback.js"></script>
+<script src="assets/app.js?v=1.6.0"></script>
+</body>
+</html>
